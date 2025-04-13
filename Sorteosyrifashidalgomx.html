@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorteos Y Rifas Hidalgo, MX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde-hidalgo: #009c4d;
+      --blanco-hidalgo: #ffffff;
+      --rojo-hidalgo: #e60012;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f7fc;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .banner-presentacion {
+      background: linear-gradient(90deg, #f44336, #ff9800, #ffeb3b);
+      color: #000;
+      padding: 15px 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      border-bottom: 2px solid #e65100;
+    }
+
+    header {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 48px;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    nav {
+      background-color: var(--rojo-hidalgo);
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    nav a {
+      color: var(--blanco-hidalgo);
+      text-decoration: none;
+      margin: 0 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+      color: #e5e5e5;
+    }
+
+    .seleccionados-bar {
+      background-color: #fff9c4;
+      border-bottom: 2px solid #fbc02d;
+      padding: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .seleccionados-bar span {
+      margin: 0 5px;
+      background: #ffe082;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .seleccionados-bar button {
+      background-color: #e60012;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .pagination {
+      text-align: center;
+      margin: 20px auto 10px;
+    }
+
+    .pagination button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .pagination button.active {
+      background-color: var(--rojo-hidalgo);
+    }
+
+    .boletos-section {
+      margin: 20px auto;
+      padding: 30px;
+      background: var(--blanco-hidalgo);
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .boletos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .boleto {
+      padding: 15px;
+      text-align: center;
+      background: #f1f1f1;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .boleto:hover {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .boleto.seleccionado {
+      background-color: var(--rojo-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .boleto.vendido {
+      background-color: #cccccc;
+      color: #666;
+      text-decoration: line-through;
+      cursor: not-allowed;
+    }
+
+    .btn-apartar {
+      display: block;
+      margin: 20px auto 0;
+      padding: 15px 25px;
+      font-size: 18px;
+      background-color: var(--verde-hidalgo);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .btn-apartar:hover {
+      background-color: #006837;
+    }
+
+    .maquina-suerte {
+      margin: 30px auto;
+      padding: 30px;
+      background-color: var(--blanco-hidalgo);
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .maquina-suerte input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .maquina-suerte button {
+      padding: 12px 20px;
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .maquina-suerte button:hover {
+      background-color: #006837;
+    }
+
+    #popup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border: 2px solid var(--verde-hidalgo);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    #popup a {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #25d366;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    footer {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner-presentacion">
+  <strong>🎉 ¡Rifa de $2000 MXN 🎉</strong>
+  <p>Cada Boleto X Solo <strong>$1 MXN</strong> C/U Con <strong>5 Oportunidades</strong> De ganar. ¡Aparta Los Tuyos Ya!</p>
+</div>
+
+<header>
+  <h1>Sorteos Y Rifas Hidalgo, MX</h1>
+  <p>Participa en sorteos y rifas para ganar premios increíbles. ¡Compra tus boletos ahora!</p>
+  <p>En La Compra De 100 Boletos Te Regalamos 10 Numeros Para La Rifa #2</p>
+  <p>Rifa En Base A La Loteria Nacional Mexicana</p>
+</header>
+
+<nav>
+  <a href="#">Inicio</a>
+  <a href="#">Sorteos</a>
+  <a href="#">Cómo Funciona</a>
+  <a href="#">Contacto</a>
+</nav>
+
+<div class="seleccionados-bar" id="barra-seleccion">
+  No has seleccionado ningún boleto.
+</div>
+
+<div class="boletos-section">
+  <div class="pagination" id="pagination"></div>
+  <div class="boletos-grid" id="boletos-grid"></div>
+</div>
+
+<button class="btn-apartar" onclick="mostrarPopup()">Apartar Boletos Seleccionados</button>
+
+<div class="maquina-suerte">
+  <h3>Máquina de la Suerte</h3>
+  <p>Ingresa la cantidad de números que deseas generar (hasta 1000):</p>
+  <input type="number" id="cantidad-numeros" placeholder="Cantidad de números" min="1" max="1000" />
+  <button onclick="generarNumerosAleatorios()">Generar Números</button>
+  <div id="numeros-generados" style="margin-top: 20px; font-size: 18px;"></div>
+</div>
+
+<div id="popup">
+  <h3>¡Gracias por apartar tus boletos!</h3>
+  <p>Verifica tu compra a través de WhatsApp:</p>
+  <a id="whatsapp-link" href="#" target="_blank">Confirmar por WhatsApp</a>
+</div>
+
+<footer>
+  <p>Rifa condicionada a la venta mínima del 75% de los boletos</p>
+  <p>En caso de no venderse la cantidad mínima, la fecha se pospondrá una semana hasta llegar al mínimo. Sin límite de tiempo.</p>
+  <p>&copy; 2025 Sorteos Y Rifas Hidalgo, MX | Todos los derechos reservados</p>
+</footer>
+
+<script>
+  const totalBoletos = 10000;
+  const boletosPorPagina = 1000;
+  let paginaActual = 1;
+  let boletosSeleccionados = [];
+
+  // Simulamos boletos vendidos
+  const boletosVendidos = [10, 25, 99, 105, 1010, 2020];
+
+  function formatearNumero(num) {
+    return String(num).padStart(5, '0');
+  }
+
+  function generarBoletos() {
+    const boletosGrid = document.getElementById("boletos-grid");
+    boletosGrid.innerHTML = "";
+    const inicio = (paginaActual - 1) * boletosPorPagina + 1;
+    const fin = Math.min(paginaActual * boletosPorPagina, totalBoletos);
+
+    for (let i = inicio; i <= fin; i++) {
+      const div = document.createElement("div");
+      div.classList.add("boleto");
+      div.innerText = formatearNumero(i);
+
+      if (boletosVendidos.includes(i)) {
+        div.classList.add("vendido");
+      } else if (boletosSeleccionados.includes(i)) {
+        div.classList.add("seleccionado");
+      }
+
+      div.onclick = () => {
+        if (!boletosVendidos.includes(i)) toggleSeleccion(i);
+      };
+
+      boletosGrid.appendChild(div);
+    }
+  }
+
+  function toggleSeleccion(num) {
+    const index = boletosSeleccionados.indexOf(num);
+    if (index > -1) {
+      boletosSeleccionados.splice(index, 1);
+    } else {
+      boletosSeleccionados.push(num);
+    }
+    actualizarBarra();
+    generarBoletos();
+  }
+
+  function actualizarBarra() {
+    const barra = document.getElementById("barra-seleccion");
+    if (boletosSeleccionados.length === 0) {
+      barra.innerHTML = "No has seleccionado ningún boleto.";
+    } else {
+      barra.innerHTML = "Boletos seleccionados: ";
+      boletosSeleccionados.forEach(num => {
+        const span = document.createElement("span");
+        span.innerText = formatearNumero(num);
+        const btn = document.createElement("button");
+        btn.innerText = "x";
+        btn.onclick = () => toggleSeleccion(num);
+        span.appendChild(btn);
+        barra.appendChild(span);
+      });
+
+      const limpiarBtn = document.createElement("button");
+      limpiarBtn.innerText = "Borrar todos";
+      limpiarBtn.onclick = () => {
+        boletosSeleccionados = [];
+        actualizarBarra();
+        generarBoletos();
+      };
+      barra.appendChild(limpiarBtn);
+    }
+  }
+
+  function generarNumerosAleatorios() {
+    const cantidad = parseInt(document.getElementById("cantidad-numeros").value);
+    const numeros = [];
+    if (cantidad > 0 && cantidad <= 1000) {
+      while (numeros.length < cantidad) {
+        let numero = Math.floor(Math.random() * totalBoletos) + 1;
+        if (!boletosSeleccionados.includes(numero) && !numeros.includes(numero) && !boletosVendidos.includes(numero)) {
+          numeros.push(numero);
+          boletosSeleccionados.push(numero);
+        }
+      }
+      actualizarBarra();
+      generarBoletos();
+      document.getElementById("numeros-generados").innerText = "Números generados: " + numeros.map(formatearNumero).join(", ");
+    } else {
+      alert("Cantidad inválida. Ingresa un número entre 1 y 1000.");
+    }
+  }
+
+  function mostrarPopup() {
+    if (boletosSeleccionados.length === 0) {
+      alert("Selecciona al menos un boleto antes de apartar.");
+      return;
+    }
+
+    const popup = document.getElementById("popup");
+    const link = document.getElementById("whatsapp-link");
+    const numeros = boletosSeleccionados.map(formatearNumero);
+    const cantidad = boletosSeleccionados.length;
+    const mensaje = `Hola, quiero confirmar la compra de ${cantidad} boletos: ${numeros.join(", ")}`;
+    const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
+    link.href = url;
+    popup.style.display = "block";
+  }
+
+  function cambiarPagina(pagina) {
+    paginaActual = pagina;
+    generarBoletos();
+    mostrarPaginacion();
+  }
+
+  function mostrarPaginacion() {
+    const pagination = document.getElementById("pagination");
+    const totalPaginas = Math.ceil(totalBoletos / boletosPorPagina);
+    pagination.innerHTML = "";
+
+    for (let i = 1; i <= totalPaginas; i++) {
+      const button = document.createElement("button");
+      button.innerText = i;
+      button.onclick = () => cambiarPagina(i);
+      if (i === paginaActual) {
+        button.classList.add("active");
+      }
+      pagination.appendChild(button);
+    }
+  }
+
+  window.onload = () => {
+    generarBoletos();
+    mostrarPaginacion();
+    actualizarBarra();
+  };
+</script>
+
+</body>
+</html>
