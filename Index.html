@@ -239,6 +239,15 @@
       margin-top: 40px;
     }
   </style>
+<style>
+  .boleto.vendido {
+    text-decoration: line-through;
+    background-color: #ccc;
+    color: #666;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+</style>
 </head>
 <body>
 
@@ -299,7 +308,7 @@
   let boletosSeleccionados = [];
 
   // Simulamos boletos vendidos
-  const boletosVendidos = [10, 25, 99, 105, 1010, 2020];
+  const boletosVendidos = [];
 
   function formatearNumero(num) {
     return String(num).padStart(5, '0');
@@ -516,5 +525,51 @@ async function limpiarBoletosVendidos() {
   // Ejecutar manualmente desde consola o descomentar para que se ejecute al cargar
   // subirBoletos();
 </script>
+<script type="module">
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-lite.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+
+  // Tu configuración de Firebase (¡ya la tienes! Si ya la inicializaste, ignora esta parte)
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_DOMINIO.firebaseapp.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    // ... resto de tu config
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ⚠️ Asegúrate de que cada boleto tenga un id como 'boleto-00001'
+  async function cargarBoletosVendidos() {
+    const boletosSnapshot = await getDocs(collection(db, "boletos"));
+    boletosSnapshot.forEach((doc) => {
+      const data = doc.data();
+      const numero = data.numero?.toString().padStart(5, '0');
+      const estado = data.estado;
+
+      if (estado === "vendido" && numero) {
+        const boleto = document.querySelector(`[data-numero='${numero}']`);
+        if (boleto) {
+          boleto.classList.add("vendido");
+          boleto.classList.remove("disponible", "seleccionado", "apartado");
+          boleto.removeEventListener("click", seleccionarBoleto);
+        }
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    cargarBoletosVendidos();
+  });
+
+  function seleccionarBoleto(e) {
+    const boleto = e.target;
+    if (boleto.classList.contains("vendido") || boleto.classList.contains("apartado")) return;
+    boleto.classList.toggle("seleccionado");
+    // Aquí puedes actualizar la lista de seleccionados si tienes esa lógica.
+  }
+</script>
+
 </body>
 </html>
