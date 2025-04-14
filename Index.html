@@ -456,6 +456,41 @@
   // Referencia al Realtime Database
   const database = firebase.database();
 </script>
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
+    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
+    messagingSenderId: "498421618503",
+    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
+    measurementId: "G-P07FSW28S8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ⚠️ Este bloque sube 10,000 boletos a Firestore
+  async function subirBoletos() {
+    for (let i = 1; i <= 10000; i++) {
+      const numero = i.toString().padStart(5, '0');
+      const ref = doc(db, "boletos", numero);
+      await setDoc(ref, {
+        numero: numero,
+        estado: "disponible"
+      });
+      if (i % 100 === 0) console.log(`Subidos: ${i}`);
+    }
+    console.log("Todos los boletos han sido agregados.");
+  }
+
+  // Ejecutar manualmente desde consola o descomentar para que se ejecute al cargar
+  // subirBoletos();
+</script>
 </body>
 </html>
