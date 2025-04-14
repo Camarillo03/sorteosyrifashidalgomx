@@ -431,6 +431,31 @@
     actualizarBarra();
   };
 </script>
+<!-- Firebase App (obligatorio) -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js"></script>
+
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js"></script>
+
+<!-- Inicializar Firebase -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
+    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
+    databaseURL: "https://rifas-y-sorteos-hidalgo-mx-default-rtdb.firebaseio.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
+    messagingSenderId: "498421618503",
+    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
+    measurementId: "G-P07FSW28S8"
+  };
+
+  // Inicializar Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+
+  // Referencia al Realtime Database
+  const database = firebase.database();
+</script>
 
 </body>
 </html>
