@@ -473,6 +473,28 @@
     appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
     measurementId: "G-P07FSW28S8"
   };
+async function limpiarBoletosVendidos() {
+  const boletosRef = db.collection("boletos");
+  const snapshot = await boletosRef.get();
+  const batch = db.batch();
+
+  let contador = 0;
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.estatus && data.estatus !== "disponible") {
+      batch.update(doc.ref, { estatus: "disponible" });
+      contador++;
+    }
+  });
+
+  if (contador > 0) {
+    await batch.commit();
+    console.log(`✅ ${contador} boletos actualizados a "disponible"`);
+  } else {
+    console.log("🚫 No se encontraron boletos que necesitaban ser corregidos.");
+  }
+}
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
