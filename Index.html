@@ -303,12 +303,10 @@
 
 <script>
   const totalBoletos = 10000;
-  const boletosPorPagina = 1000;
+  const boletosPorPagina = 1500;
   let paginaActual = 1;
   let boletosSeleccionados = [];
-
-  // Simulamos boletos vendidos
-  const boletosVendidos = [];
+  let boletosVendidos = []; // 🔧 Ahora se llenará desde Firestore
 
   function formatearNumero(num) {
     return String(num).padStart(5, '0');
@@ -324,6 +322,7 @@
       const div = document.createElement("div");
       div.classList.add("boleto");
       div.innerText = formatearNumero(i);
+      div.setAttribute("data-numero", formatearNumero(i)); // 🔧 Necesario para vincular con Firebase
 
       if (boletosVendidos.includes(i)) {
         div.classList.add("vendido");
@@ -406,7 +405,7 @@
     const link = document.getElementById("whatsapp-link");
     const numeros = boletosSeleccionados.map(formatearNumero);
     const cantidad = boletosSeleccionados.length;
-    const mensaje = `Hola, quiero confirmar la compra de ${cantidad} boletos: ${numeros.join(", ")}`;
+    const mensaje = `Hola, quiero confirmar la compra para la gran rifa de $2000 MXN de ${cantidad} boletos: ${numeros.join(", ")}`;
     const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
     link.href = url;
     popup.style.display = "block";
@@ -440,6 +439,7 @@
     actualizarBarra();
   };
 </script>
+
 <!-- Firebase App -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <!-- Firebase Firestore -->
