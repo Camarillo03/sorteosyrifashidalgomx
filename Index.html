@@ -434,10 +434,11 @@
   }
 
   window.onload = () => {
-    generarBoletos();
-    mostrarPaginacion();
-    actualizarBarra();
-  };
+  generarBoletos();
+  mostrarPaginacion();
+  actualizarBarra();
+  setTimeout(cargarBoletosVendidos, 100);
+};
 </script>
 
 <!-- Firebase App -->
