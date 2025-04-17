@@ -301,17 +301,40 @@
   <p>&copy; 2025 Sorteos Y Rifas Hidalgo, MX | Todos los derechos reservados</p>
 </footer>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
 <script>
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
+    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
+    databaseURL: "https://rifas-y-sorteos-hidalgo-mx-default-rtdb.firebaseio.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
+    messagingSenderId: "498421618503",
+    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
+    measurementId: "G-P07FSW28S8"
+  };
+
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Variables globales
   const totalBoletos = 10000;
   const boletosPorPagina = 1500;
   let paginaActual = 1;
   let boletosSeleccionados = [];
-  let boletosVendidos = []; // 🔧 Ahora se llenará desde Firestore
+  let boletosVendidos = [];
 
+  // Función para formatear números con ceros a la izquierda
   function formatearNumero(num) {
     return String(num).padStart(5, '0');
   }
 
+  // Función principal para generar los boletos en la página
   function generarBoletos() {
     const boletosGrid = document.getElementById("boletos-grid");
     boletosGrid.innerHTML = "";
@@ -322,8 +345,10 @@
       const div = document.createElement("div");
       div.classList.add("boleto");
       div.innerText = formatearNumero(i);
-      div.setAttribute("data-numero", formatearNumero(i)); // 🔧 Necesario para vincular con Firebase
+      div.setAttribute("data-numero", formatearNumero(i));
+      div.setAttribute("data-id", i);
 
+      // Verificar estado del boleto
       if (boletosVendidos.includes(i)) {
         div.classList.add("vendido");
       } else if (boletosSeleccionados.includes(i)) {
@@ -338,6 +363,7 @@
     }
   }
 
+  // Función para alternar la selección de boletos
   function toggleSeleccion(num) {
     const index = boletosSeleccionados.indexOf(num);
     if (index > -1) {
@@ -349,6 +375,7 @@
     generarBoletos();
   }
 
+  // Función para actualizar la barra de selección
   function actualizarBarra() {
     const barra = document.getElementById("barra-seleccion");
     if (boletosSeleccionados.length === 0) {
@@ -376,6 +403,7 @@
     }
   }
 
+  // Función para generar números aleatorios
   function generarNumerosAleatorios() {
     const cantidad = parseInt(document.getElementById("cantidad-numeros").value);
     const numeros = [];
@@ -395,6 +423,7 @@
     }
   }
 
+  // Función para mostrar el popup de confirmación
   function mostrarPopup() {
     if (boletosSeleccionados.length === 0) {
       alert("Selecciona al menos un boleto antes de apartar.");
@@ -411,12 +440,14 @@
     popup.style.display = "block";
   }
 
+  // Función para cambiar de página
   function cambiarPagina(pagina) {
     paginaActual = pagina;
     generarBoletos();
     mostrarPaginacion();
   }
 
+  // Función para mostrar la paginación
   function mostrarPaginacion() {
     const pagination = document.getElementById("pagination");
     const totalPaginas = Math.ceil(totalBoletos / boletosPorPagina);
@@ -433,142 +464,90 @@
     }
   }
 
-  window.onload = () => {
-  generarBoletos();
-  mostrarPaginacion();
-  actualizarBarra();
-  setTimeout(cargarBoletosVendidos, 100);
-};
-</script>
-
-<!-- Firebase App -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<!-- Firebase Firestore -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-<!-- Firebase Realtime Database -->
-<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js"></script>
-
-<!-- Inicializar Firebase -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
-    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
-    databaseURL: "https://rifas-y-sorteos-hidalgo-mx-default-rtdb.firebaseio.com",
-    projectId: "rifas-y-sorteos-hidalgo-mx",
-    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
-    messagingSenderId: "498421618503",
-    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
-    measurementId: "G-P07FSW28S8"
-  };
-
-  // Inicializar Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-
-  // Referencia al Realtime Database
-  const database = firebase.database();
-</script>
-<!-- Firebase SDKs -->
-<script type="module">
-  // Import the functions you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
-    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
-    projectId: "rifas-y-sorteos-hidalgo-mx",
-    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
-    messagingSenderId: "498421618503",
-    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
-    measurementId: "G-P07FSW28S8"
-  };
-async function limpiarBoletosVendidos() {
-  const boletosRef = db.collection("boletos");
-  const snapshot = await boletosRef.get();
-  const batch = db.batch();
-
-  let contador = 0;
-
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    if (data.estatus && data.estatus !== "disponible") {
-      batch.update(doc.ref, { estatus: "disponible" });
-      contador++;
-    }
-  });
-
-  if (contador > 0) {
-    await batch.commit();
-    console.log(`✅ ${contador} boletos actualizados a "disponible"`);
-  } else {
-    console.log("🚫 No se encontraron boletos que necesitaban ser corregidos.");
-  }
-}
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // ⚠️ Este bloque sube 10,000 boletos a Firestore
-  async function subirBoletos() {
-    for (let i = 1; i <= 10000; i++) {
-      const numero = i.toString().padStart(5, '0');
-      const ref = doc(db, "boletos", numero);
-      await setDoc(ref, {
-        numero: numero,
-        estado: "disponible"
-      });
-      if (i % 100 === 0) console.log(`Subidos: ${i}`);
-    }
-    console.log("Todos los boletos han sido agregados.");
-  }
-
-  // Ejecutar manualmente desde consola o descomentar para que se ejecute al cargar
-  // subirBoletos();
-</script>
-<script type="module">
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-lite.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-
-  // Tu configuración de Firebase (¡ya la tienes! Si ya la inicializaste, ignora esta parte)
-  const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_DOMINIO.firebaseapp.com",
-    projectId: "rifas-y-sorteos-hidalgo-mx",
-    // ... resto de tu config
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // ⚠️ Asegúrate de que cada boleto tenga un id como 'boleto-00001'
+  // Función para cargar los boletos vendidos desde Firestore
   async function cargarBoletosVendidos() {
-    const boletosSnapshot = await getDocs(collection(db, "boletos"));
-    boletosSnapshot.forEach((doc) => {
-      const data = doc.data();
-      const numero = data.numero?.toString().padStart(5, '0');
-      const estado = data.estado;
-
-      if (estado === "vendido" && numero) {
-        const boleto = document.querySelector(`[data-numero='${numero}']`);
-        if (boleto) {
-          boleto.classList.add("vendido");
-          boleto.classList.remove("disponible", "seleccionado", "apartado");
-          boleto.removeEventListener("click", seleccionarBoleto);
+    try {
+      console.log("Cargando boletos vendidos desde Firestore...");
+      const querySnapshot = await db.collection("boletos").get();
+      boletosVendidos = []; // Reiniciamos el array
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const numero = parseInt(data.numero || data.numeroBoleto); // Compatibilidad con ambos nombres
+        
+        // Verificamos el estado usando ambos posibles nombres de campo
+        if ((data.estado === "vendido" || data.estatus === "vendido") && !isNaN(numero)) {
+          boletosVendidos.push(numero);
         }
-      }
+      });
+      
+      console.log(`Boletos vendidos cargados: ${boletosVendidos.length}`);
+      generarBoletos(); // Regeneramos la vista con los nuevos datos
+    } catch (error) {
+      console.error("Error al cargar boletos vendidos:", error);
+    }
+  }
+
+  // Función para limpiar el caché del navegador
+  function limpiarCache() {
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) caches.delete(name);
+      });
+    }
+    console.log("Cache limpiado");
+    location.reload(true);
+  }
+
+  // Escuchador de cambios en tiempo real
+  function configurarListenerEnTiempoReal() {
+    db.collection("boletos").onSnapshot((querySnapshot) => {
+      console.log("Cambio detectado en Firestore. Actualizando boletos...");
+      cargarBoletosVendidos();
+    }, (error) => {
+      console.error("Error en listener en tiempo real:", error);
     });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // Inicialización cuando la página carga
+  window.addEventListener('DOMContentLoaded', () => {
     cargarBoletosVendidos();
+    mostrarPaginacion();
+    actualizarBarra();
+    configurarListenerEnTiempoReal();
   });
 
-  function seleccionarBoleto(e) {
-    const boleto = e.target;
-    if (boleto.classList.contains("vendido") || boleto.classList.contains("apartado")) return;
-    boleto.classList.toggle("seleccionado");
-    // Aquí puedes actualizar la lista de seleccionados si tienes esa lógica.
+  // Función para limpiar boletos vendidos (solo para administradores)
+  async function limpiarBoletosVendidos() {
+    if (!confirm("¿Estás seguro de querer marcar TODOS los boletos como disponibles?")) return;
+    
+    try {
+      const querySnapshot = await db.collection("boletos").get();
+      const batch = db.batch();
+      let contador = 0;
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.estado === "vendido" || data.estatus === "vendido") {
+          batch.update(doc.ref, { 
+            estado: "disponible",
+            estatus: "disponible"
+          });
+          contador++;
+        }
+      });
+
+      if (contador > 0) {
+        await batch.commit();
+        alert(`✅ ${contador} boletos actualizados a "disponible"`);
+        cargarBoletosVendidos();
+      } else {
+        alert("🚫 No se encontraron boletos que necesitaran ser corregidos.");
+      }
+    } catch (error) {
+      console.error("Error al limpiar boletos:", error);
+      alert("❌ Error al limpiar boletos: " + error.message);
+    }
   }
 </script>
 
