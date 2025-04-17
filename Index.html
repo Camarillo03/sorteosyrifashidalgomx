@@ -238,6 +238,17 @@
       text-align: center;
       margin-top: 40px;
     }
+    
+    .btn-recargar {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 15px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 <style>
   .boleto.vendido {
@@ -269,6 +280,8 @@
   <a href="#">Cómo Funciona</a>
   <a href="#">Contacto</a>
 </nav>
+
+<button class="btn-recargar" onclick="recargarBoletos()">Actualizar Estado de Boletos</button>
 
 <div class="seleccionados-bar" id="barra-seleccion">
   No has seleccionado ningún boleto.
@@ -341,6 +354,9 @@
     const inicio = (paginaActual - 1) * boletosPorPagina + 1;
     const fin = Math.min(paginaActual * boletosPorPagina, totalBoletos);
 
+    console.log(`Generando boletos ${inicio} a ${fin}`);
+    console.log("Boletos vendidos actuales:", boletosVendidos);
+
     for (let i = inicio; i <= fin; i++) {
       const div = document.createElement("div");
       div.classList.add("boleto");
@@ -348,15 +364,20 @@
       div.setAttribute("data-numero", formatearNumero(i));
       div.setAttribute("data-id", i);
 
-      // Verificar estado del boleto
-      if (boletosVendidos.includes(i)) {
+      // Verificación más detallada
+      const esVendido = boletosVendidos.includes(i);
+      const esSeleccionado = boletosSeleccionados.includes(i);
+      
+      console.log(`Boleto ${i}: vendido=${esVendido}, seleccionado=${esSeleccionado}`);
+
+      if (esVendido) {
         div.classList.add("vendido");
-      } else if (boletosSeleccionados.includes(i)) {
+      } else if (esSeleccionado) {
         div.classList.add("seleccionado");
       }
 
       div.onclick = () => {
-        if (!boletosVendidos.includes(i)) toggleSeleccion(i);
+        if (!esVendido) toggleSeleccion(i);
       };
 
       boletosGrid.appendChild(div);
@@ -469,40 +490,52 @@
     try {
       console.log("Cargando boletos vendidos desde Firestore...");
       const querySnapshot = await db.collection("boletos").get();
-      boletosVendidos = []; // Reiniciamos el array
+      const nuevosVendidos = [];
       
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const numero = parseInt(data.numero || data.numeroBoleto); // Compatibilidad con ambos nombres
+        // Manejo más robusto del número del boleto
+        const numero = parseInt(data.numero || data.numeroBoleto || doc.id);
         
-        // Verificamos el estado usando ambos posibles nombres de campo
-        if ((data.estado === "vendido" || data.estatus === "vendido") && !isNaN(numero)) {
-          boletosVendidos.push(numero);
+        // Verificación más robusta del estado
+        const estado = (data.estado || data.estatus || "").toLowerCase();
+        if ((estado === "vendido") && !isNaN(numero)) {
+          nuevosVendidos.push(numero);
+        } else {
+          console.log(`Boleto ${numero} no está vendido (estado: ${estado})`);
         }
       });
       
-      console.log(`Boletos vendidos cargados: ${boletosVendidos.length}`);
-      generarBoletos(); // Regeneramos la vista con los nuevos datos
+      // Actualizamos solo si hay cambios
+      if (JSON.stringify(nuevosVendidos) !== JSON.stringify(boletosVendidos)) {
+        boletosVendidos = nuevosVendidos;
+        console.log(`Boletos vendidos actualizados: ${boletosVendidos.length}`);
+        console.log("Ejemplo de boletos vendidos:", boletosVendidos.slice(0, 10));
+        generarBoletos();
+      } else {
+        console.log("No hay cambios en los boletos vendidos");
+      }
     } catch (error) {
       console.error("Error al cargar boletos vendidos:", error);
     }
   }
 
-  // Función para limpiar el caché del navegador
-  function limpiarCache() {
-    if ('caches' in window) {
-      caches.keys().then(function(names) {
-        for (let name of names) caches.delete(name);
-      });
-    }
-    console.log("Cache limpiado");
-    location.reload(true);
+  // Función para recargar los boletos
+  function recargarBoletos() {
+    console.log("Recargando boletos...");
+    cargarBoletosVendidos().then(() => {
+      alert("Estado de los boletos actualizado");
+    });
   }
 
   // Escuchador de cambios en tiempo real
   function configurarListenerEnTiempoReal() {
     db.collection("boletos").onSnapshot((querySnapshot) => {
-      console.log("Cambio detectado en Firestore. Actualizando boletos...");
+      console.log("Cambio detectado en Firestore. Documentos afectados:", querySnapshot.docChanges().length);
+      querySnapshot.docChanges().forEach(change => {
+        console.log(`Cambio en boleto ${change.doc.id}:`, 
+          change.type, change.doc.data());
+      });
       cargarBoletosVendidos();
     }, (error) => {
       console.error("Error en listener en tiempo real:", error);
@@ -515,6 +548,12 @@
     mostrarPaginacion();
     actualizarBarra();
     configurarListenerEnTiempoReal();
+    
+    // Verificar si hay parámetros de depuración en la URL
+    if (window.location.search.includes('debug=1')) {
+      console.log("Modo depuración activado");
+      setInterval(cargarBoletosVendidos, 30000); // Recargar cada 30 segundos
+    }
   });
 
   // Función para limpiar boletos vendidos (solo para administradores)
@@ -528,7 +567,8 @@
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.estado === "vendido" || data.estatus === "vendido") {
+        const estado = (data.estado || data.estatus || "").toLowerCase();
+        if (estado === "vendido") {
           batch.update(doc.ref, { 
             estado: "disponible",
             estatus: "disponible"
