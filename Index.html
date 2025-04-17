@@ -356,11 +356,21 @@
   <p>&copy; 2025 Sorteos Y Rifas Hidalgo, MX | Todos los derechos reservados</p>
 </footer>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<!-- Firebase SDK actualizado -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
 <script>
+  // Limpieza de Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+      caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+    });
+  }
+
   // Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
@@ -374,7 +384,7 @@
   };
 
   // Inicializar Firebase
-  firebase.initializeApp(firebaseConfig);
+  const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   // Variables globales
@@ -622,6 +632,5 @@
     }
   }
 </script>
-
 </body>
 </html>
