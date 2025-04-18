@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorteos Y Rifas Hidalgo, MX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
+  <style>
+    :root {
+      --verde-hidalgo: #009c4d;
+      --blanco-hidalgo: #ffffff;
+      --rojo-hidalgo: #e60012;
+      --azul-boton: #4285f4;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f7fc;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .banner-presentacion {
+      background: linear-gradient(90deg, #f44336, #ff9800, #ffeb3b);
+      color: #000;
+      padding: 15px 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      border-bottom: 2px solid #e65100;
+    }
+
+    header {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 48px;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+    nav {
+      background-color: var(--rojo-hidalgo);
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    nav a {
+      color: var(--blanco-hidalgo);
+      text-decoration: none;
+      margin: 0 20px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+      color: #e5e5e5;
+    }
+
+    .contenedor-botones {
+      text-align: center;
+      margin: 15px 0;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .btn-recargar {
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: var(--azul-boton);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+
+    .btn-recargar:hover {
+      background-color: #3367d6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-recargar:active {
+      transform: translateY(0);
+    }
+
+    .seleccionados-bar {
+      background-color: #fff9c4;
+      border-bottom: 2px solid #fbc02d;
+      padding: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .seleccionados-bar span {
+      margin: 0 5px;
+      background: #ffe082;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .seleccionados-bar button {
+      background-color: #e60012;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .pagination {
+      text-align: center;
+      margin: 20px auto 10px;
+    }
+
+    .pagination button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .pagination button.active {
+      background-color: var(--rojo-hidalgo);
+    }
+
+    .boletos-section {
+      margin: 20px auto;
+      padding: 30px;
+      background: var(--blanco-hidalgo);
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .boletos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .boleto {
+      padding: 15px;
+      text-align: center;
+      background: #f1f1f1;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .boleto:hover {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .boleto.seleccionado {
+      background-color: var(--rojo-hidalgo);
+      color: var(--blanco-hidalgo);
+    }
+
+    .boleto.vendido {
+      background-color: #cccccc;
+      color: #666;
+      text-decoration: line-through;
+      cursor: not-allowed;
+    }
+
+    .btn-apartar {
+      display: block;
+      margin: 20px auto 0;
+      padding: 15px 25px;
+      font-size: 18px;
+      background-color: var(--verde-hidalgo);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .btn-apartar:hover {
+      background-color: #006837;
+    }
+
+    .maquina-suerte {
+      margin: 30px auto;
+      padding: 30px;
+      background-color: var(--blanco-hidalgo);
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .maquina-suerte input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .maquina-suerte button {
+      padding: 12px 20px;
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .maquina-suerte button:hover {
+      background-color: #006837;
+    }
+
+    #popup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border: 2px solid var(--verde-hidalgo);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    #popup a {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #25d366;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    footer {
+      background-color: var(--verde-hidalgo);
+      color: var(--blanco-hidalgo);
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    #notificacion-actualizacion {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+    }
+
+    .notificacion-error {
+      background-color: #f44336 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner-presentacion">
+  <strong>🎉 ¡Rifa de $2000 MXN 🎉</strong>
+  <p>Cada Boleto X Solo <strong>$1 MXN</strong> C/U Con <strong>5 Oportunidades</strong> De ganar. ¡Aparta Los Tuyos Ya!</p>
+</div>
+
+<header>
+  <h1>Sorteos Y Rifas Hidalgo, MX</h1>
+  <p>Participa en sorteos y rifas para ganar premios increíbles. ¡Compra tus boletos ahora!</p>
+  <p>En La Compra De 100 Boletos Te Regalamos 10 Numeros Para La Rifa #2</p>
+  <p>Rifa En Base A La Loteria Nacional Mexicana</p>
+</header>
+
+<nav>
+  <a href="#">Inicio</a>
+  <a href="#">Sorteos</a>
+  <a href="#">Cómo Funciona</a>
+  <a href="#">Contacto</a>
+</nav>
+
+<div class="contenedor-botones">
+  <button class="btn-recargar" onclick="recargarBoletos()">
+    <i class="fas fa-sync-alt"></i> Actualizar Estado de Boletos
+  </button>
+</div>
+
+<div class="seleccionados-bar" id="barra-seleccion">
+  No has seleccionado ningún boleto.
+</div>
+
+<div class="boletos-section">
+  <div class="pagination" id="pagination"></div>
+  <div class="boletos-grid" id="boletos-grid"></div>
+</div>
+
+<button class="btn-apartar" onclick="mostrarPopup()">Apartar Boletos Seleccionados</button>
+
+<div class="maquina-suerte">
+  <h3>Máquina de la Suerte</h3>
+  <p>Ingresa la cantidad de números que deseas generar (hasta 1000):</p>
+  <input type="number" id="cantidad-numeros" placeholder="Cantidad de números" min="1" max="1000" />
+  <button onclick="generarNumerosAleatorios()">Generar Números</button>
+  <div id="numeros-generados" style="margin-top: 20px; font-size: 18px;"></div>
+</div>
+
+<div id="popup">
+  <h3>¡Gracias por apartar tus boletos!</h3>
+  <p>Verifica tu compra a través de WhatsApp:</p>
+  <a id="whatsapp-link" href="#" target="_blank">Confirmar por WhatsApp</a>
+</div>
+
+<div id="notificacion-actualizacion"></div>
+
+<footer>
+  <p>Rifa condicionada a la venta mínima del 75% de los boletos</p>
+  <p>En caso de no venderse la cantidad mínima, la fecha se pospondrá una semana hasta llegar al mínimo. Sin límite de tiempo.</p>
+  <p>&copy; 2025 Sorteos Y Rifas Hidalgo, MX | Todos los derechos reservados</p>
+</footer>
+
+<!-- Firebase SDK actualizado -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+<script>
+  // Limpieza de Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(registration => registration.unregister());
+      caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+    });
+  }
+
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
+    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
+    databaseURL: "https://rifas-y-sorteos-hidalgo-mx-default-rtdb.firebaseio.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.appspot.com",
+    messagingSenderId: "498421618503",
+    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
+    measurementId: "G-P07FSW28S8"
+  };
+
+  // Inicializar Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Variables globales
+  const totalBoletos = 10000;
+  const boletosPorPagina = 1500;
+  let paginaActual = 1;
+  let boletosSeleccionados = [];
+  let boletosVendidos = [];
+
+  // Función para formatear números con ceros a la izquierda
+  function formatearNumero(num) {
+    return String(num).padStart(5, '0');
+  }
+
+  // Función principal para generar los boletos en la página
+  function generarBoletos() {
+    const boletosGrid = document.getElementById("boletos-grid");
+    boletosGrid.innerHTML = "";
+    const inicio = (paginaActual - 1) * boletosPorPagina + 1;
+    const fin = Math.min(paginaActual * boletosPorPagina, totalBoletos);
+
+    for (let i = inicio; i <= fin; i++) {
+      const div = document.createElement("div");
+      div.classList.add("boleto");
+      div.innerText = formatearNumero(i);
+      div.setAttribute("data-numero", formatearNumero(i));
+      div.setAttribute("data-id", i);
+
+      // Verificar estado del boleto
+      if (boletosVendidos.includes(i)) {
+        div.classList.add("vendido");
+      } else if (boletosSeleccionados.includes(i)) {
+        div.classList.add("seleccionado");
+      }
+
+      div.onclick = () => {
+        if (!boletosVendidos.includes(i)) toggleSeleccion(i);
+      };
+
+      boletosGrid.appendChild(div);
+    }
+  }
+
+  // Función para alternar la selección de boletos
+  function toggleSeleccion(num) {
+    const index = boletosSeleccionados.indexOf(num);
+    if (index > -1) {
+      boletosSeleccionados.splice(index, 1);
+    } else {
+      boletosSeleccionados.push(num);
+    }
+    actualizarBarra();
+    generarBoletos();
+  }
+
+  // Función para actualizar la barra de selección
+  function actualizarBarra() {
+    const barra = document.getElementById("barra-seleccion");
+    if (boletosSeleccionados.length === 0) {
+      barra.innerHTML = "No has seleccionado ningún boleto.";
+    } else {
+      barra.innerHTML = "Boletos seleccionados: ";
+      boletosSeleccionados.forEach(num => {
+        const span = document.createElement("span");
+        span.innerText = formatearNumero(num);
+        const btn = document.createElement("button");
+        btn.innerText = "x";
+        btn.onclick = () => toggleSeleccion(num);
+        span.appendChild(btn);
+        barra.appendChild(span);
+      });
+
+      const limpiarBtn = document.createElement("button");
+      limpiarBtn.innerText = "Borrar todos";
+      limpiarBtn.onclick = () => {
+        boletosSeleccionados = [];
+        actualizarBarra();
+        generarBoletos();
+      };
+      barra.appendChild(limpiarBtn);
+    }
+  }
+
+  // Función para generar números aleatorios
+  function generarNumerosAleatorios() {
+    const cantidad = parseInt(document.getElementById("cantidad-numeros").value);
+    const numeros = [];
+    if (cantidad > 0 && cantidad <= 1000) {
+      while (numeros.length < cantidad) {
+        let numero = Math.floor(Math.random() * totalBoletos) + 1;
+        if (!boletosSeleccionados.includes(numero) && !numeros.includes(numero) && !boletosVendidos.includes(numero)) {
+          numeros.push(numero);
+          boletosSeleccionados.push(numero);
+        }
+      }
+      actualizarBarra();
+      generarBoletos();
+      document.getElementById("numeros-generados").innerText = "Números generados: " + numeros.map(formatearNumero).join(", ");
+    } else {
+      alert("Cantidad inválida. Ingresa un número entre 1 y 1000.");
+    }
+  }
+
+  // Función para mostrar el popup de confirmación
+  function mostrarPopup() {
+    if (boletosSeleccionados.length === 0) {
+      alert("Selecciona al menos un boleto antes de apartar.");
+      return;
+    }
+
+    const popup = document.getElementById("popup");
+    const link = document.getElementById("whatsapp-link");
+    const numeros = boletosSeleccionados.map(formatearNumero);
+    const cantidad = boletosSeleccionados.length;
+    const mensaje = `Hola, quiero confirmar la compra para la gran rifa de $2000 MXN de ${cantidad} boletos: ${numeros.join(", ")}`;
+    const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
+    link.href = url;
+    popup.style.display = "block";
+  }
+
+  // Función para cambiar de página
+  function cambiarPagina(pagina) {
+    paginaActual = pagina;
+    generarBoletos();
+    mostrarPaginacion();
+  }
+
+  // Función para mostrar la paginación
+  function mostrarPaginacion() {
+    const pagination = document.getElementById("pagination");
+    const totalPaginas = Math.ceil(totalBoletos / boletosPorPagina);
+    pagination.innerHTML = "";
+
+    for (let i = 1; i <= totalPaginas; i++) {
+      const button = document.createElement("button");
+      button.innerText = i;
+      button.onclick = () => cambiarPagina(i);
+      if (i === paginaActual) {
+        button.classList.add("active");
+      }
+      pagination.appendChild(button);
+    }
+  }
+
+  // Función para cargar los boletos vendidos desde Firestore
+  async function cargarBoletosVendidos() {
+    try {
+      console.log("Cargando boletos vendidos desde Firestore...");
+      const querySnapshot = await db.collection("boletos").get();
+      const nuevosVendidos = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const numero = parseInt(data.numero || data.numeroBoleto || doc.id);
+        const estado = (data.estado || data.estatus || "").toLowerCase();
+        
+        if (estado === "vendido" && !isNaN(numero)) {
+          nuevosVendidos.push(numero);
+        }
+      });
+      
+      // Actualizar solo si hay cambios
+      if (JSON.stringify(nuevosVendidos) !== JSON.stringify(boletosVendidos)) {
+        boletosVendidos = nuevosVendidos;
+        console.log(`Boletos vendidos actualizados: ${boletosVendidos.length}`);
+        generarBoletos();
+      }
+      return true;
+    } catch (error) {
+      console.error("Error al cargar boletos vendidos:", error);
+      return false;
+    }
+  }
+
+  // Función para recargar los boletos
+  function recargarBoletos() {
+    const boton = document.querySelector('.btn-recargar');
+    const textoOriginal = boton.innerHTML;
+    boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+    boton.disabled = true;
+    
+    cargarBoletosVendidos().then((exito) => {
+      boton.innerHTML = textoOriginal;
+      boton.disabled = false;
+      
+      const notificacion = document.getElementById("notificacion-actualizacion");
+      notificacion.textContent = exito ? '¡Boletos actualizados correctamente!' : 'Error al actualizar boletos';
+      notificacion.style.backgroundColor = exito ? '#4CAF50' : '#f44336';
+      notificacion.style.display = 'block';
+      
+      setTimeout(() => {
+        notificacion.style.display = 'none';
+      }, 3000);
+    });
+  }
+
+  // Escuchador de cambios en tiempo real
+  function configurarListenerEnTiempoReal() {
+    db.collection("boletos").onSnapshot((querySnapshot) => {
+      console.log("Cambio detectado en Firestore. Actualizando boletos...");
+      cargarBoletosVendidos();
+    }, (error) => {
+      console.error("Error en listener en tiempo real:", error);
+    });
+  }
+
+  // Inicialización cuando la página carga
+  window.addEventListener('DOMContentLoaded', () => {
+    cargarBoletosVendidos();
+    mostrarPaginacion();
+    actualizarBarra();
+    configurarListenerEnTiempoReal();
+  });
+
+  // Función para limpiar boletos vendidos (solo para administradores)
+  async function limpiarBoletosVendidos() {
+    if (!confirm("¿Estás seguro de querer marcar TODOS los boletos como disponibles?")) return;
+    
+    try {
+      const querySnapshot = await db.collection("boletos").get();
+      const batch = db.batch();
+      let contador = 0;
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.estado === "vendido" || data.estatus === "vendido") {
+          batch.update(doc.ref, { 
+            estado: "disponible",
+            estatus: "disponible"
+          });
+          contador++;
+        }
+      });
+
+      if (contador > 0) {
+        await batch.commit();
+        alert(`✅ ${contador} boletos actualizados a "disponible"`);
+        cargarBoletosVendidos();
+      } else {
+        alert("🚫 No se encontraron boletos que necesitaran ser corregidos.");
+      }
+    } catch (error) {
+      console.error("Error al limpiar boletos:", error);
+      alert("❌ Error al limpiar boletos: " + error.message);
+    }
+  }
+</script>
+</body>
+</html>
