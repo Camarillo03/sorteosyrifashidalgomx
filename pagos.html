@@ -88,6 +88,22 @@
       padding: 20px;
       margin-top: 60px;
     }
+  
+    .btn-copiar {
+      background-color: #009c4d;
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      margin-left: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .btn-copiar:hover {
+      background-color: #007a3d;
+    }
+
   </style>
 </head>
 <body>
@@ -109,54 +125,31 @@
 
   <div class="tarjeta">
     <strong>Banco BANORTE</strong>
-    Número de tarjeta: 4189140054796981<button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br> <br>
-    CLABE: 072306012680808850<button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br><br>
-    Nombre: Daniel Camarillo Dominguez<button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br>
+    Número de tarjeta: 4189140054796981<button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br> <br>
+    CLABE: 072306012680808850<button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br><br>
+    Nombre: Daniel Camarillo Dominguez<button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br>
   </div>
 
   <div class="tarjeta">
     <strong>OXXO</strong>
-    Deposita en cualquier OXXO al número: 4189140054796981<button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br><br>
-    Nombre: Daniel Camarillo Dominguez<button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br>
+    Deposita en cualquier OXXO al número: 4189140054796981<button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br><br>
+    Nombre: Daniel Camarillo Dominguez<button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br>
   </div>
 
   
   <div class="tarjeta">
     <strong>Banco ?</strong>
-    Número de tarjeta: - <button onclick="copiarTexto('4027360012345678')">📋 Copiar</button><br>
-    CLABE: - <button onclick="copiarTexto('127180012345678901')">📋 Copiar</button><br>
-    Nombre: - <button onclick="copiarTexto('Laura Ramírez Gómez')">📋 Copiar</button>
+    Número de tarjeta: - <button onclick="copiarTexto('4027360012345678')" class="btn-copiar">📋 Copiar</button><br>
+    CLABE: - <button onclick="copiarTexto('127180012345678901')" class="btn-copiar">📋 Copiar</button><br>
+    Nombre: - <button onclick="copiarTexto('Laura Ramírez Gómez')" class="btn-copiar">📋 Copiar</button>
   </div>
 
   <div class="tarjeta">
     <strong>SPEI / Transferencia directa</strong>
     Banco: - <br>
-    CLABE: - <button onclick="copiarTexto('021180012345678901')">📋 Copiar</button><br>
-    Nombre: - <button onclick="copiarTexto('Alejandro Torres Ruiz')">📋 Copiar</button>
+    CLABE: - <button onclick="copiarTexto('021180012345678901')" class="btn-copiar">📋 Copiar</button><br>
+    Nombre: - <button onclick="copiarTexto('Alejandro Torres Ruiz')" class="btn-copiar">📋 Copiar</button>
   </div>
 
   <div class="alerta">
-    📸 <strong>IMPORTANTE:</strong> Después de hacer tu pago, envía una foto del comprobante por WhatsApp junto con los números que apartaste para confirmar tu participación.
-Recuerda poner tu nombre completo en el asunto de cada deposito.
-  </div>
-
-  <a class="btn-volver" href="index.html">← Volver al Inicio</a>
-</div>
-
-<footer>
-  <p>&copy; 2025 Sorteos Y Rifas Hidalgo, MX | Todos los derechos reservados</p>
-</footer>
-
-
-<script>
-function copiarTexto(texto) {
-  navigator.clipboard.writeText(texto).then(() => {
-    alert("Texto copiado: " + texto);
-  }).catch(err => {
-    alert("Error al copiar: " + err);
-  });
-}
-</script>
-
-</body>
-</html>
+    📸 <strong>IMPORTANTE:</strong> Después de hacer tu pago, envía una foto del comprobante por WhatsApp junto con los númer
