@@ -192,6 +192,13 @@
       cursor: not-allowed;
     }
 
+    .boleto.apartado {
+      background-color: #fff3e0;
+      color: #e65100;
+      border: 2px dashed #ff9800;
+      cursor: not-allowed;
+    }
+
     .btn-apartar {
       display: block;
       margin: 20px auto 0;
@@ -388,6 +395,7 @@
   let paginaActual = 1;
   let boletosSeleccionados = [];
   let boletosVendidos = [];
+  let boletosApartados = [];
 
   // Función para formatear números con ceros a la izquierda
   function formatearNumero(num) {
@@ -411,12 +419,14 @@
       // Verificar estado del boleto
       if (boletosVendidos.includes(i)) {
         div.classList.add("vendido");
+      } else if (boletosApartados.includes(i)) {
+        div.classList.add("apartado");
       } else if (boletosSeleccionados.includes(i)) {
         div.classList.add("seleccionado");
       }
 
       div.onclick = () => {
-        if (!boletosVendidos.includes(i)) toggleSeleccion(i);
+        if (!boletosVendidos.includes(i) && !boletosApartados.includes(i)) toggleSeleccion(i);
       };
 
       boletosGrid.appendChild(div);
@@ -470,7 +480,7 @@
     if (cantidad > 0 && cantidad <= 1000) {
       while (numeros.length < cantidad) {
         let numero = Math.floor(Math.random() * totalBoletos) + 1;
-        if (!boletosSeleccionados.includes(numero) && !numeros.includes(numero) && !boletosVendidos.includes(numero)) {
+        if (!boletosSeleccionados.includes(numero) && !numeros.includes(numero) && !boletosVendidos.includes(numero) && !boletosApartados.includes(numero)) {
           numeros.push(numero);
           boletosSeleccionados.push(numero);
         }
@@ -484,20 +494,48 @@
   }
 
   // Función para mostrar el popup de confirmación
-  function mostrarPopup() {
+  async function mostrarPopup() {
     if (boletosSeleccionados.length === 0) {
       alert("Selecciona al menos un boleto antes de apartar.");
       return;
     }
 
-    const popup = document.getElementById("popup");
-    const link = document.getElementById("whatsapp-link");
-    const numeros = boletosSeleccionados.map(formatearNumero);
-    const cantidad = boletosSeleccionados.length;
-    const mensaje = `Hola, quiero confirmar la compra para la gran rifa de $2000 MXN de ${cantidad} boletos: ${numeros.join(", ")}`;
-    const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
-    link.href = url;
-    popup.style.display = "block";
+    try {
+      const batch = db.batch();
+      const timestamp = new Date().toISOString();
+
+      boletosSeleccionados.forEach(num => {
+        const boletoRef = db.collection("boletos").doc(String(num));
+        batch.set(boletoRef, {
+          estado: "apartado",
+          numero: num,
+          fechaApartado: timestamp,
+          contacto: "Pendiente WhatsApp"
+        }, { merge: true });
+      });
+
+      await batch.commit();
+      console.log("Boletos marcados como apartados en Firestore");
+
+      // Mostrar popup de WhatsApp
+      const popup = document.getElementById("popup");
+      const link = document.getElementById("whatsapp-link");
+      const numeros = boletosSeleccionados.map(formatearNumero);
+      const cantidad = boletosSeleccionados.length;
+      const mensaje = `Hola, quiero confirmar la compra para la gran rifa de $2000 MXN de ${cantidad} boletos: ${numeros.join(", ")}`;
+      const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
+      link.href = url;
+      popup.style.display = "block";
+
+      // Actualizar UI
+      await cargarBoletosVendidos();
+      boletosSeleccionados = [];
+      actualizarBarra();
+
+    } catch (error) {
+      console.error("Error al apartar boletos:", error);
+      alert("Ocurrió un error al apartar los boletos. Intenta nuevamente.");
+    }
   }
 
   // Función para cambiar de página
@@ -524,12 +562,13 @@
     }
   }
 
-  // Función para cargar los boletos vendidos desde Firestore
+  // Función para cargar los boletos vendidos y apartados desde Firestore
   async function cargarBoletosVendidos() {
     try {
-      console.log("Cargando boletos vendidos desde Firestore...");
+      console.log("Cargando estado de boletos desde Firestore...");
       const querySnapshot = await db.collection("boletos").get();
       const nuevosVendidos = [];
+      const nuevosApartados = [];
       
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -538,18 +577,22 @@
         
         if (estado === "vendido" && !isNaN(numero)) {
           nuevosVendidos.push(numero);
+        } else if (estado === "apartado" && !isNaN(numero)) {
+          nuevosApartados.push(numero);
         }
       });
       
       // Actualizar solo si hay cambios
-      if (JSON.stringify(nuevosVendidos) !== JSON.stringify(boletosVendidos)) {
+      if (JSON.stringify(nuevosVendidos) !== JSON.stringify(boletosVendidos) || 
+          JSON.stringify(nuevosApartados) !== JSON.stringify(boletosApartados)) {
         boletosVendidos = nuevosVendidos;
-        console.log(`Boletos vendidos actualizados: ${boletosVendidos.length}`);
+        boletosApartados = nuevosApartados;
+        console.log(`Boletos vendidos: ${boletosVendidos.length}, Apartados: ${boletosApartados.length}`);
         generarBoletos();
       }
       return true;
     } catch (error) {
-      console.error("Error al cargar boletos vendidos:", error);
+      console.error("Error al cargar boletos:", error);
       return false;
     }
   }
@@ -605,7 +648,7 @@
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.estado === "vendido" || data.estatus === "vendido") {
+        if (data.estado === "vendido" || data.estatus === "vendido" || data.estado === "apartado" || data.estatus === "apartado") {
           batch.update(doc.ref, { 
             estado: "disponible",
             estatus: "disponible"
