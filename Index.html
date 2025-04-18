@@ -6,6 +6,7 @@
   <title>Sorteos Y Rifas Hidalgo, MX</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
   <style>
     :root {
       --verde-hidalgo: #009c4d;
@@ -274,14 +275,6 @@
       margin-top: 40px;
     }
 
-    .boleto.vendido {
-      text-decoration: line-through;
-      background-color: #ccc;
-      color: #666;
-      pointer-events: none;
-      cursor: not-allowed;
-    }
-
     #notificacion-actualizacion {
       position: fixed;
       bottom: 20px;
@@ -293,6 +286,10 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       z-index: 1000;
       display: none;
+    }
+
+    .notificacion-error {
+      background-color: #f44336 !important;
     }
   </style>
 </head>
@@ -364,9 +361,7 @@
   // Limpieza de Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
+      registrations.forEach(registration => registration.unregister());
       caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
     });
   }
@@ -377,7 +372,7 @@
     authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
     databaseURL: "https://rifas-y-sorteos-hidalgo-mx-default-rtdb.firebaseio.com",
     projectId: "rifas-y-sorteos-hidalgo-mx",
-    storageBucket: "rifas-y-sorteos-hidalgo-mx.firebasestorage.app",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.appspot.com",
     messagingSenderId: "498421618503",
     appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62",
     measurementId: "G-P07FSW28S8"
