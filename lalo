@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin | Rifas Hidalgo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f7fc;
+      color: #333;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      color: #009c4d;
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    select, button {
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin-right: 10px;
+    }
+    select {
+      background-color: #e60012;
+      color: white;
+    }
+    button {
+      background-color: #009c4d;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #006837;
+    }
+    .mensaje {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body onload="verificarAcceso()">
+<div id="acceso" style="display:none; text-align:center; padding-top:60px;">
+  <h2>Acceso Restringido</h2>
+  <input type="text" id="usuario" placeholder="Usuario" style="padding:10px; font-size:16px;"><br><br>
+  <input type="password" id="clave" placeholder="Contraseña" style="padding:10px; font-size:16px;"><br><br>
+  <button onclick="validarCredenciales()" style="padding:10px 20px; font-size:16px; background-color:#009c4d; color:white; border:none; border-radius:6px;">Ingresar</button>
+  <p id="error-acceso" style="color:red; margin-top:10px;"></p>
+</div>
+<div id="contenido-admin" style="display:none;">
+
+
+<h1>Panel de Administración</h1>
+<p>Ingresa los números de los boletos separados por coma o espacio, selecciona el nuevo estado y haz clic en actualizar:</p>
+
+<textarea id="lista-boletos" placeholder="Ejemplo: 1001, 1002, 1003 o 1001 1002 1003"></textarea>
+
+<select id="nuevo-estado">
+  <option value="vendido">Vendido</option>
+  <option value="apartado">Apartado</option>
+  <option value="disponible">Disponible</option>
+</select>
+
+<button onclick="actualizarBoletos()">Actualizar</button>
+
+<div class="mensaje" id="mensaje"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+<script>
+  // Tu configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
+    authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
+    projectId: "rifas-y-sorteos-hidalgo-mx",
+    storageBucket: "rifas-y-sorteos-hidalgo-mx.appspot.com",
+    messagingSenderId: "498421618503",
+    appId: "1:498421618503:web:0ca7cedde3a4cb91a9de62"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  function actualizarBoletos() {
+    const input = document.getElementById('lista-boletos').value;
+    const estado = document.getElementById('nuevo-estado').value;
+    const mensaje = document.getElementById('mensaje');
+
+    const numeros = input.split(/[,\s]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+    if (numeros.length === 0) {
+      mensaje.innerText = "⚠️ Ingresa al menos un número válido.";
+      return;
+    }
+
+    const batch = db.batch();
+    numeros.forEach(num => {
+      const ref = db.collection("boletos").doc(String(num));
+      batch.set(ref, {
+        estado: estado,
+        estatus: estado,
+        actualizado: new Date().toISOString()
+      }, { merge: true });
+    });
+
+    batch.commit().then(() => {
+      mensaje.innerText = `✅ ${numeros.length} boletos actualizados a "${estado}".`;
+    }).catch(error => {
+      console.error(error);
+      mensaje.innerText = "❌ Error al actualizar los boletos.";
+    });
+  }
+</script>
+
+
+</div>
+<script>
+  function verificarAcceso() {
+    document.getElementById('acceso').style.display = 'block';
+    document.getElementById('contenido-admin').style.display = 'none';
+  }
+
+  function validarCredenciales() {
+    const user = document.getElementById("usuario").value;
+    const pass = document.getElementById("clave").value;
+    const error = document.getElementById("error-acceso");
+    if (user === "RifasMX" && pass === "Vpil3453") {
+      document.getElementById("acceso").style.display = "none";
+      document.getElementById("contenido-admin").style.display = "block";
+    } else {
+      error.innerText = "Usuario o contraseña incorrectos.";
+    }
+  }
+</script>
+</body>
+
+</html>
