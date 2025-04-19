@@ -1,91 +1,361 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Panel Admin | Rifas Hidalgo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary-color: #009c4d;
+      --secondary-color: #e60012;
+      --light-color: #f4f7fc;
+      --dark-color: #333;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+    
     body {
       font-family: 'Open Sans', sans-serif;
-      background-color: #f4f7fc;
-      color: #333;
-      padding: 40px 20px;
-      max-width: 800px;
+      background-color: var(--light-color);
+      color: var(--dark-color);
+      padding: 20px;
+      max-width: 1200px;
       margin: auto;
     }
-    h1 {
-      color: #009c4d;
+    
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
       text-align: center;
     }
+    
+    .login-box h2 {
+      color: var(--primary-color);
+      margin-bottom: 30px;
+    }
+    
+    .login-box input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .login-box button:hover {
+      background-color: #006837;
+    }
+    
+    .error-message {
+      color: var(--danger-color);
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 30px;
+      margin-top: 20px;
+      display: none; /* Oculto inicialmente */
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .stat-card h3 {
+      margin-top: 0;
+      color: var(--dark-color);
+      font-size: 1rem;
+    }
+    
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
     textarea {
       width: 100%;
       height: 120px;
-      padding: 10px;
+      padding: 15px;
       margin-bottom: 20px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       font-size: 16px;
+      transition: border 0.3s;
     }
+    
+    textarea:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 156, 77, 0.2);
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    
     select, button {
       font-size: 16px;
-      padding: 10px;
+      padding: 12px 20px;
       border-radius: 6px;
       border: none;
-      margin-right: 10px;
-    }
-    select {
-      background-color: #e60012;
-      color: white;
-    }
-    button {
-      background-color: #009c4d;
-      color: white;
       cursor: pointer;
+      transition: all 0.3s;
     }
+    
+    select {
+      background-color: var(--secondary-color);
+      color: white;
+      min-width: 200px;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
     button:hover {
       background-color: #006837;
+      transform: translateY(-2px);
     }
+    
     .mensaje {
       margin-top: 20px;
-      font-weight: bold;
+      padding: 15px;
+      border-radius: 6px;
       text-align: center;
+      font-weight: 600;
+    }
+    
+    .success {
+      background-color: rgba(40, 167, 69, 0.2);
+      color: var(--success-color);
+      border: 1px solid var(--success-color);
+    }
+    
+    .error {
+      background-color: rgba(220, 53, 69, 0.2);
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+    }
+    
+    .warning {
+      background-color: rgba(255, 193, 7, 0.2);
+      color: #856404;
+      border: 1px solid var(--warning-color);
+    }
+    
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    
+    .vendido {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--danger-color);
+    }
+    
+    .apartado {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #856404;
+    }
+    
+    .disponible {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success-color);
+    }
+    
+    .recent-updates {
+      margin-top: 40px;
+    }
+    
+    .recent-updates h2 {
+      color: var(--primary-color);
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .update-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      select, button {
+        width: 100%;
+      }
+      
+      .login-box {
+        padding: 30px 20px;
+      }
     }
   </style>
 </head>
-<body onload="verificarAcceso()">
-<div id="acceso" style="display:none; text-align:center; padding-top:60px;">
-  <h2>Acceso Restringido</h2>
-  <input type="text" id="usuario" placeholder="Usuario" style="padding:10px; font-size:16px;"><br><br>
-  <input type="password" id="clave" placeholder="Contraseña" style="padding:10px; font-size:16px;"><br><br>
-  <button onclick="validarCredenciales()" style="padding:10px 20px; font-size:16px; background-color:#009c4d; color:white; border:none; border-radius:6px;">Ingresar</button>
-  <p id="error-acceso" style="color:red; margin-top:10px;"></p>
+<body>
+<!-- Pantalla de Login -->
+<div class="login-container" id="login-container">
+  <div class="login-box">
+    <h2><i class="fas fa-lock"></i> Acceso Administrativo</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="clave" placeholder="Contraseña">
+    <button onclick="validarCredenciales()"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+    <div class="error-message" id="error-message"></div>
+  </div>
 </div>
-<div id="contenido-admin" style="display:none;">
 
-
-<h1>Panel de Administración</h1>
-<p>Ingresa los números de los boletos separados por coma o espacio, selecciona el nuevo estado y haz clic en actualizar:</p>
-
-<textarea id="lista-boletos" placeholder="Ejemplo: 1001, 1002, 1003 o 1001 1002 1003"></textarea>
-
-<select id="nuevo-estado">
-  <option value="vendido">Vendido</option>
-  <option value="apartado">Apartado</option>
-  <option value="disponible">Disponible</option>
-</select>
-
-<button onclick="actualizarBoletos()">Actualizar</button>
-
-<div class="mensaje" id="mensaje"></div>
+<!-- Contenido Administrativo -->
+<div class="container" id="admin-container">
+  <h1><i class="fas fa-ticket-alt"></i> Panel de Administración de Boletos</h1>
+  
+  <div class="stats-cards">
+    <div class="stat-card">
+      <h3>Boletos Totales</h3>
+      <div class="value" id="total-tickets">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Disponibles</h3>
+      <div class="value" id="available-tickets">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Apartados</h3>
+      <div class="value" id="reserved-tickets">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Vendidos</h3>
+      <div class="value" id="sold-tickets">0</div>
+    </div>
+  </div>
+  
+  <div class="panel-header">
+    <h2><i class="fas fa-edit"></i> Actualizar Estado de Boletos</h2>
+    <div>
+      <button onclick="mostrarEjemplo()">
+        <i class="fas fa-question-circle"></i> Ver Ejemplo
+      </button>
+      <button onclick="cerrarSesion()" style="background-color: var(--danger-color); margin-left: 10px;">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
+  </div>
+  
+  <p>Ingresa los números de los boletos separados por coma, espacio o saltos de línea:</p>
+  
+  <textarea id="lista-boletos" placeholder="Ejemplo: 
+1001, 1002, 1003
+1004 1005 1006
+1007-1010"></textarea>
+  
+  <div class="controls">
+    <select id="nuevo-estado">
+      <option value="disponible">Disponible</option>
+      <option value="apartado">Apartado</option>
+      <option value="vendido">Vendido</option>
+    </select>
+    
+    <button onclick="actualizarBoletos()">
+      <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
+    
+    <button onclick="limpiarFormulario()" style="background-color: #6c757d;">
+      <i class="fas fa-broom"></i> Limpiar
+    </button>
+  </div>
+  
+  <div class="mensaje" id="mensaje"></div>
+  
+  <div class="recent-updates">
+    <h2><i class="fas fa-history"></i> Actualizaciones Recientes</h2>
+    <div id="updates-list">
+      <!-- Las actualizaciones se cargarán aquí -->
+    </div>
+  </div>
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
 <script>
-  // Tu configuración de Firebase
+  // Configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyAEAcEviWNEvJ-6o8xBs7ZeKX5nkNt-XCg",
     authDomain: "rifas-y-sorteos-hidalgo-mx.firebaseapp.com",
@@ -97,19 +367,91 @@
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  
+  // Función para validar credenciales
+  function validarCredenciales() {
+    const usuario = document.getElementById('usuario').value;
+    const clave = document.getElementById('clave').value;
+    const errorMessage = document.getElementById('error-message');
+    
+    // Credenciales válidas
+    const USUARIO_VALIDO = "RifasHidalgoMx";
+    const CLAVE_VALIDA = "vpil3453";
+    
+    if(usuario === USUARIO_VALIDO && clave === CLAVE_VALIDA) {
+      // Credenciales correctas
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('admin-container').style.display = 'block';
+      
+      // Cargar datos del panel
+      cargarEstadisticas();
+      cargarActualizacionesRecientes();
+    } else {
+      // Credenciales incorrectas
+      errorMessage.textContent = 'Usuario o contraseña incorrectos';
+      document.getElementById('clave').value = '';
+    }
+  }
+  
+  // Función para cerrar sesión
+  function cerrarSesion() {
+    document.getElementById('admin-container').style.display = 'none';
+    document.getElementById('login-container').style.display = 'flex';
+    document.getElementById('usuario').value = '';
+    document.getElementById('clave').value = '';
+    document.getElementById('error-message').textContent = '';
+  }
+  
+  // Verificar si hay sesión al cargar la página
+  document.addEventListener('DOMContentLoaded', function() {
+    // Por defecto mostrar el login
+    document.getElementById('login-container').style.display = 'flex';
+    document.getElementById('admin-container').style.display = 'none';
+    
+    // Permitir login con Enter
+    document.getElementById('clave').addEventListener('keypress', function(e) {
+      if(e.key === 'Enter') {
+        validarCredenciales();
+      }
+    });
+  });
+
+  function mostrarEjemplo() {
+    document.getElementById('lista-boletos').value = "1001, 1002, 1003\n1004 1005 1006\n1007-1010";
+    document.getElementById('mensaje').innerHTML = '<span class="status-badge disponible">Ejemplo cargado. Puedes editarlo.</span>';
+  }
+  
+  function limpiarFormulario() {
+    document.getElementById('lista-boletos').value = '';
+    document.getElementById('mensaje').innerHTML = '';
+  }
 
   function actualizarBoletos() {
     const input = document.getElementById('lista-boletos').value;
     const estado = document.getElementById('nuevo-estado').value;
     const mensaje = document.getElementById('mensaje');
-
-    const numeros = input.split(/[,\s]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+    
+    // Procesar rangos (ej: 1001-1005)
+    const processedInput = input.replace(/(\d+)-(\d+)/g, (match, p1, p2) => {
+      let result = [];
+      const start = parseInt(p1);
+      const end = parseInt(p2);
+      for (let i = start; i <= end; i++) {
+        result.push(i);
+      }
+      return result.join(',');
+    });
+    
+    const numeros = processedInput.split(/[,\s]+/).map(n => parseInt(n)).filter(n => !isNaN(n));
+    
     if (numeros.length === 0) {
-      mensaje.innerText = "⚠️ Ingresa al menos un número válido.";
+      mensaje.innerHTML = '<span class="warning">⚠️ Ingresa al menos un número válido.</span>';
       return;
     }
-
+    
     const batch = db.batch();
+    const updates = [];
+    
     numeros.forEach(num => {
       const ref = db.collection("boletos").doc(String(num));
       batch.set(ref, {
@@ -117,37 +459,96 @@
         estatus: estado,
         actualizado: new Date().toISOString()
       }, { merge: true });
+      
+      updates.push({
+        numero: num,
+        estado: estado,
+        fecha: new Date().toLocaleString()
+      });
     });
-
+    
+    mensaje.innerHTML = `<span class="status-badge ${estado}"><i class="fas fa-spinner fa-spin"></i> Actualizando ${numeros.length} boleto(s)...</span>`;
+    
     batch.commit().then(() => {
-      mensaje.innerText = `✅ ${numeros.length} boletos actualizados a "${estado}".`;
+      mensaje.innerHTML = `<span class="success">✅ ${numeros.length} boleto(s) actualizado(s) a <span class="status-badge ${estado}">${estado}</span></span>`;
+      cargarEstadisticas();
+      agregarActualizaciones(updates);
     }).catch(error => {
       console.error(error);
-      mensaje.innerText = "❌ Error al actualizar los boletos.";
+      mensaje.innerHTML = '<span class="error">❌ Error al actualizar los boletos. Verifica la consola para más detalles.</span>';
     });
   }
-</script>
-
-
-</div>
-<script>
-  function verificarAcceso() {
-    document.getElementById('acceso').style.display = 'block';
-    document.getElementById('contenido-admin').style.display = 'none';
+  
+  function cargarEstadisticas() {
+    db.collection("boletos").get().then((querySnapshot) => {
+      let total = 0;
+      let disponibles = 0;
+      let apartados = 0;
+      let vendidos = 0;
+      
+      querySnapshot.forEach((doc) => {
+        total++;
+        const data = doc.data();
+        if (data.estado === 'disponible') disponibles++;
+        if (data.estado === 'apartado') apartados++;
+        if (data.estado === 'vendido') vendidos++;
+      });
+      
+      document.getElementById('total-tickets').textContent = total;
+      document.getElementById('available-tickets').textContent = disponibles;
+      document.getElementById('reserved-tickets').textContent = apartados;
+      document.getElementById('sold-tickets').textContent = vendidos;
+    });
   }
-
-  function validarCredenciales() {
-    const user = document.getElementById("usuario").value;
-    const pass = document.getElementById("clave").value;
-    const error = document.getElementById("error-acceso");
-    if (user === "RifasMX" && pass === "Vpil3453") {
-      document.getElementById("acceso").style.display = "none";
-      document.getElementById("contenido-admin").style.display = "block";
-    } else {
-      error.innerText = "Usuario o contraseña incorrectos.";
+  
+  function cargarActualizacionesRecientes() {
+    db.collection("boletos")
+      .orderBy("actualizado", "desc")
+      .limit(10)
+      .get()
+      .then((querySnapshot) => {
+        const updatesList = document.getElementById('updates-list');
+        updatesList.innerHTML = '';
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const updateItem = document.createElement('div');
+          updateItem.className = 'update-item';
+          updateItem.innerHTML = `
+            <span>Boleto #${doc.id}</span>
+            <span class="status-badge ${data.estado}">${data.estado}</span>
+            <small>${new Date(data.actualizado).toLocaleString()}</small>
+          `;
+          updatesList.appendChild(updateItem);
+        });
+      });
+  }
+  
+  function agregarActualizaciones(updates) {
+    const updatesList = document.getElementById('updates-list');
+    
+    updates.forEach(update => {
+      const updateItem = document.createElement('div');
+      updateItem.className = 'update-item';
+      updateItem.innerHTML = `
+        <span>Boleto #${update.numero}</span>
+        <span class="status-badge ${update.estado}">${update.estado}</span>
+        <small>${update.fecha}</small>
+      `;
+      
+      // Insertar al principio de la lista
+      if (updatesList.firstChild) {
+        updatesList.insertBefore(updateItem, updatesList.firstChild);
+      } else {
+        updatesList.appendChild(updateItem);
+      }
+    });
+    
+    // Mantener solo los últimos 10 elementos
+    while (updatesList.children.length > 10) {
+      updatesList.removeChild(updatesList.lastChild);
     }
   }
 </script>
 </body>
-
 </html>
