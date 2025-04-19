@@ -15,15 +15,29 @@
       --success-color: #28a745;
       --warning-color: #ffc107;
       --danger-color: #dc3545;
+      --bg-color: white;
+      --text-color: #333;
+      --card-bg: white;
+      --border-color: #ddd;
+    }
+    
+    /* Modo Oscuro */
+    body.dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #f0f0f0;
+      --card-bg: #2d2d2d;
+      --border-color: #444;
+      --light-color: #252525;
     }
     
     body {
       font-family: 'Open Sans', sans-serif;
       background-color: var(--light-color);
-      color: var(--dark-color);
+      color: var(--text-color);
       padding: 20px;
       max-width: 1200px;
       margin: auto;
+      transition: all 0.3s;
     }
     
     .login-container {
@@ -35,7 +49,7 @@
     }
     
     .login-box {
-      background: white;
+      background: var(--card-bg);
       padding: 40px;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -53,9 +67,11 @@
       width: 100%;
       padding: 12px 15px;
       margin-bottom: 20px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       font-size: 16px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
     }
     
     .login-box button {
@@ -82,12 +98,13 @@
     }
     
     .container {
-      background-color: white;
+      background-color: var(--card-bg);
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
       padding: 30px;
       margin-top: 20px;
-      display: none; /* Oculto inicialmente */
+      display: none;
+      transition: all 0.3s;
     }
     
     h1 {
@@ -114,7 +131,7 @@
     }
     
     .stat-card {
-      background: white;
+      background: var(--card-bg);
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -123,7 +140,7 @@
     
     .stat-card h3 {
       margin-top: 0;
-      color: var(--dark-color);
+      color: var(--text-color);
       font-size: 1rem;
     }
     
@@ -133,15 +150,33 @@
       color: var(--primary-color);
     }
     
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .search-box input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 16px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+    
     textarea {
       width: 100%;
       height: 120px;
       padding: 15px;
       margin-bottom: 20px;
       border-radius: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       font-size: 16px;
       transition: border 0.3s;
+      background-color: var(--card-bg);
+      color: var(--text-color);
     }
     
     textarea:focus {
@@ -242,7 +277,7 @@
     
     .recent-updates h2 {
       color: var(--primary-color);
-      border-bottom: 2px solid #eee;
+      border-bottom: 2px solid var(--border-color);
       padding-bottom: 10px;
       margin-bottom: 20px;
     }
@@ -251,16 +286,40 @@
       display: flex;
       justify-content: space-between;
       padding: 10px 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 100;
     }
     
     @media (max-width: 768px) {
-      .controls {
+      .controls, .filters {
         flex-direction: column;
         align-items: flex-start;
       }
       
-      select, button {
+      select, button, .search-box {
         width: 100%;
       }
       
@@ -305,14 +364,20 @@
     </div>
   </div>
   
+  <!-- Búsqueda Individual (#1) -->
+  <div class="search-box">
+    <input type="number" id="search-ticket" placeholder="Buscar boleto por número">
+    <button onclick="buscarBoleto()"><i class="fas fa-search"></i> Buscar</button>
+  </div>
+  
   <div class="panel-header">
     <h2><i class="fas fa-edit"></i> Actualizar Estado de Boletos</h2>
     <div>
       <button onclick="mostrarEjemplo()">
-        <i class="fas fa-question-circle"></i> Ver Ejemplo
+        <i class="fas fa-question-circle"></i> Ejemplo
       </button>
       <button onclick="cerrarSesion()" style="background-color: var(--danger-color); margin-left: 10px;">
-        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        <i class="fas fa-sign-out-alt"></i> Salir
       </button>
     </div>
   </div>
@@ -342,12 +407,28 @@
   
   <div class="mensaje" id="mensaje"></div>
   
+  <!-- Filtros para Historial (#2) -->
   <div class="recent-updates">
-    <h2><i class="fas fa-history"></i> Actualizaciones Recientes</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2><i class="fas fa-history"></i> Actualizaciones Recientes</h2>
+      <div class="filters">
+        <select id="filtro-estado" onchange="filtrarHistorial()">
+          <option value="todos">Todos los estados</option>
+          <option value="disponible">Disponibles</option>
+          <option value="apartado">Apartados</option>
+          <option value="vendido">Vendidos</option>
+        </select>
+      </div>
+    </div>
     <div id="updates-list">
       <!-- Las actualizaciones se cargarán aquí -->
     </div>
   </div>
+</div>
+
+<!-- Botón Modo Oscuro (#7) -->
+<div class="theme-toggle" onclick="toggleDarkMode()">
+  <i class="fas fa-moon" id="theme-icon"></i>
 </div>
 
 <!-- Firebase SDK -->
@@ -368,7 +449,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
-  // Función para validar credenciales
+  // ========== FUNCIONES DE AUTENTICACIÓN ==========
   function validarCredenciales() {
     const usuario = document.getElementById('usuario').value;
     const clave = document.getElementById('clave').value;
@@ -386,6 +467,7 @@
       // Cargar datos del panel
       cargarEstadisticas();
       cargarActualizacionesRecientes();
+      playSuccessSound(); // (#5) Sonido al ingresar
     } else {
       // Credenciales incorrectas
       errorMessage.textContent = 'Usuario o contraseña incorrectos';
@@ -393,7 +475,6 @@
     }
   }
   
-  // Función para cerrar sesión
   function cerrarSesion() {
     document.getElementById('admin-container').style.display = 'none';
     document.getElementById('login-container').style.display = 'flex';
@@ -402,20 +483,7 @@
     document.getElementById('error-message').textContent = '';
   }
   
-  // Verificar si hay sesión al cargar la página
-  document.addEventListener('DOMContentLoaded', function() {
-    // Por defecto mostrar el login
-    document.getElementById('login-container').style.display = 'flex';
-    document.getElementById('admin-container').style.display = 'none';
-    
-    // Permitir login con Enter
-    document.getElementById('clave').addEventListener('keypress', function(e) {
-      if(e.key === 'Enter') {
-        validarCredenciales();
-      }
-    });
-  });
-
+  // ========== FUNCIONES PRINCIPALES ==========
   function mostrarEjemplo() {
     document.getElementById('lista-boletos').value = "1001, 1002, 1003\n1004 1005 1006\n1007-1010";
     document.getElementById('mensaje').innerHTML = '<span class="status-badge disponible">Ejemplo cargado. Puedes editarlo.</span>';
@@ -451,34 +519,135 @@
     
     const batch = db.batch();
     const updates = [];
+    const numerosNoEncontrados = []; // (#6) Validación
     
-    numeros.forEach(num => {
-      const ref = db.collection("boletos").doc(String(num));
-      batch.set(ref, {
-        estado: estado,
-        estatus: estado,
-        actualizado: new Date().toISOString()
-      }, { merge: true });
-      
-      updates.push({
-        numero: num,
-        estado: estado,
-        fecha: new Date().toLocaleString()
+    // Verificar existencia de boletos primero
+    Promise.all(numeros.map(num => 
+      db.collection("boletos").doc(String(num)).get().then(doc => ({
+        num,
+        exists: doc.exists
+      }))
+    )).then(results => {
+      results.forEach(({num, exists}) => {
+        if (!exists) {
+          numerosNoEncontrados.push(num);
+        } else {
+          const ref = db.collection("boletos").doc(String(num));
+          batch.set(ref, {
+            estado: estado,
+            estatus: estado,
+            actualizado: new Date().toISOString()
+          }, { merge: true });
+          
+          updates.push({
+            numero: num,
+            estado: estado,
+            fecha: new Date().toLocaleString()
+          });
+        }
       });
-    });
-    
-    mensaje.innerHTML = `<span class="status-badge ${estado}"><i class="fas fa-spinner fa-spin"></i> Actualizando ${numeros.length} boleto(s)...</span>`;
-    
-    batch.commit().then(() => {
-      mensaje.innerHTML = `<span class="success">✅ ${numeros.length} boleto(s) actualizado(s) a <span class="status-badge ${estado}">${estado}</span></span>`;
+      
+      mensaje.innerHTML = `<span class="status-badge ${estado}"><i class="fas fa-spinner fa-spin"></i> Actualizando ${updates.length} boleto(s)...</span>`;
+      
+      if (numerosNoEncontrados.length > 0) {
+        mensaje.innerHTML += `<br><span class="warning">⚠️ No encontrados: ${numerosNoEncontrados.join(', ')}</span>`;
+      }
+      
+      return batch.commit();
+    }).then(() => {
+      mensaje.innerHTML = `<span class="success">✅ ${updates.length} boleto(s) actualizado(s) a <span class="status-badge ${estado}">${estado}</span></span>`;
+      if (numerosNoEncontrados.length > 0) {
+        mensaje.innerHTML += `<br><span class="warning">⚠️ No encontrados: ${numerosNoEncontrados.join(', ')}</span>`;
+      }
       cargarEstadisticas();
       agregarActualizaciones(updates);
+      playSuccessSound(); // (#5) Sonido al actualizar
     }).catch(error => {
       console.error(error);
       mensaje.innerHTML = '<span class="error">❌ Error al actualizar los boletos. Verifica la consola para más detalles.</span>';
     });
   }
   
+  // ========== FUNCIONES DE BÚSQUEDA (#1) ==========
+  function buscarBoleto() {
+    const numero = document.getElementById('search-ticket').value;
+    if (!numero) {
+      document.getElementById('mensaje').innerHTML = '<span class="warning">⚠️ Ingresa un número de boleto</span>';
+      return;
+    }
+    
+    db.collection("boletos").doc(numero).get().then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('mensaje').innerHTML = `
+          <div style="text-align: left; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px;">
+            <h3 style="margin-top: 0;">Boleto #${numero}</h3>
+            <p><strong>Estado:</strong> <span class="status-badge ${data.estado}">${data.estado}</span></p>
+            <p><strong>Última actualización:</strong> ${new Date(data.actualizado).toLocaleString()}</p>
+          </div>
+        `;
+      } else {
+        document.getElementById('mensaje').innerHTML = '<span class="warning">⚠️ Boleto no encontrado</span>';
+      }
+    });
+  }
+  
+  // ========== FUNCIONES DE HISTORIAL (#2) ==========
+  function cargarActualizacionesRecientes() {
+    db.collection("boletos")
+      .orderBy("actualizado", "desc")
+      .limit(10)
+      .get()
+      .then((querySnapshot) => {
+        const updatesList = document.getElementById('updates-list');
+        updatesList.innerHTML = '';
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          agregarItemHistorial(doc.id, data.estado, data.actualizado);
+        });
+      });
+  }
+  
+  function agregarActualizaciones(updates) {
+    updates.forEach(update => {
+      agregarItemHistorial(update.numero, update.estado, update.fecha);
+    });
+  }
+  
+  function agregarItemHistorial(numero, estado, fecha) {
+    const updatesList = document.getElementById('updates-list');
+    const updateItem = document.createElement('div');
+    updateItem.className = 'update-item';
+    updateItem.innerHTML = `
+      <span>Boleto #${numero}</span>
+      <span class="status-badge ${estado}">${estado}</span>
+      <small>${new Date(fecha).toLocaleString()}</small>
+    `;
+    
+    if (updatesList.firstChild) {
+      updatesList.insertBefore(updateItem, updatesList.firstChild);
+    } else {
+      updatesList.appendChild(updateItem);
+    }
+    
+    // Mantener solo los últimos 10 elementos
+    while (updatesList.children.length > 10) {
+      updatesList.removeChild(updatesList.lastChild);
+    }
+  }
+  
+  function filtrarHistorial() {
+    const filtro = document.getElementById('filtro-estado').value;
+    const updates = document.querySelectorAll('.update-item');
+    
+    updates.forEach(item => {
+      const estado = item.querySelector('.status-badge').textContent;
+      item.style.display = (filtro === 'todos' || estado === filtro) ? 'flex' : 'none';
+    });
+  }
+  
+  // ========== FUNCIONES DE ESTADÍSTICAS ==========
   function cargarEstadisticas() {
     db.collection("boletos").get().then((querySnapshot) => {
       let total = 0;
@@ -501,54 +670,39 @@
     });
   }
   
-  function cargarActualizacionesRecientes() {
-    db.collection("boletos")
-      .orderBy("actualizado", "desc")
-      .limit(10)
-      .get()
-      .then((querySnapshot) => {
-        const updatesList = document.getElementById('updates-list');
-        updatesList.innerHTML = '';
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const updateItem = document.createElement('div');
-          updateItem.className = 'update-item';
-          updateItem.innerHTML = `
-            <span>Boleto #${doc.id}</span>
-            <span class="status-badge ${data.estado}">${data.estado}</span>
-            <small>${new Date(data.actualizado).toLocaleString()}</small>
-          `;
-          updatesList.appendChild(updateItem);
-        });
-      });
+  // ========== FUNCIONES ADICIONALES (#5, #7) ==========
+  // (#5) Notificaciones con sonido
+  function playSuccessSound() {
+    const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+    audio.volume = 0.3;
+    audio.play().catch(e => console.log("El navegador bloqueó el sonido automático"));
   }
   
-  function agregarActualizaciones(updates) {
-    const updatesList = document.getElementById('updates-list');
-    
-    updates.forEach(update => {
-      const updateItem = document.createElement('div');
-      updateItem.className = 'update-item';
-      updateItem.innerHTML = `
-        <span>Boleto #${update.numero}</span>
-        <span class="status-badge ${update.estado}">${update.estado}</span>
-        <small>${update.fecha}</small>
-      `;
-      
-      // Insertar al principio de la lista
-      if (updatesList.firstChild) {
-        updatesList.insertBefore(updateItem, updatesList.firstChild);
-      } else {
-        updatesList.appendChild(updateItem);
-      }
-    });
-    
-    // Mantener solo los últimos 10 elementos
-    while (updatesList.children.length > 10) {
-      updatesList.removeChild(updatesList.lastChild);
+  // (#7) Modo oscuro
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const icon = document.getElementById('theme-icon');
+    if (document.body.classList.contains('dark-mode')) {
+      icon.classList.replace('fa-moon', 'fa-sun');
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      icon.classList.replace('fa-sun', 'fa-moon');
+      localStorage.setItem('darkMode', 'false');
     }
   }
+  
+  // Cargar preferencia de modo oscuro al iniciar
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
+  }
+  
+  // Permitir login con Enter
+  document.getElementById('clave').addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') {
+      validarCredenciales();
+    }
+  });
 </script>
 </body>
 </html>
