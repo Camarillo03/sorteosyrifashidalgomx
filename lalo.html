@@ -313,6 +313,62 @@
       z-index: 100;
     }
     
+    /* Estilos para la búsqueda avanzada */
+    .advanced-search {
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
+      margin: 20px 0;
+      padding: 15px;
+      background: var(--light-color);
+      border-radius: 8px;
+    }
+    
+    .advanced-search:hover {
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+    
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+    
+    th {
+      background-color: var(--light-color);
+      position: sticky;
+      top: 0;
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    /* Estilos para el bloqueo de cuenta */
+    .lockout-message {
+      color: var(--danger-color);
+      font-weight: bold;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
     @media (max-width: 768px) {
       .controls, .filters {
         flex-direction: column;
@@ -325,6 +381,10 @@
       
       .login-box {
         padding: 30px 20px;
+      }
+      
+      .advanced-search {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -364,10 +424,38 @@
     </div>
   </div>
   
-  <!-- Búsqueda Individual (#1) -->
+  <!-- Búsqueda Individual -->
   <div class="search-box">
     <input type="number" id="search-ticket" placeholder="Buscar boleto por número">
     <button onclick="buscarBoleto()"><i class="fas fa-search"></i> Buscar</button>
+  </div>
+  
+  <!-- Búsqueda Avanzada -->
+  <div class="advanced-search">
+    <h3><i class="fas fa-search-plus"></i> Búsqueda Avanzada</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <label for="min-number">Número mínimo</label>
+        <input type="number" id="min-number" class="search-input">
+      </div>
+      <div>
+        <label for="max-number">Número máximo</label>
+        <input type="number" id="max-number" class="search-input">
+      </div>
+    </div>
+    <div style="margin-top: 10px;">
+      <label for="search-status">Estado</label>
+      <select id="search-status" style="width: 100%; margin-top: 5px;">
+        <option value="todos">Todos</option>
+        <option value="disponible">Disponible</option>
+        <option value="apartado">Apartado</option>
+        <option value="vendido">Vendido</option>
+      </select>
+    </div>
+    <button onclick="busquedaAvanzada()" style="margin-top: 15px; width: 100%;">
+      <i class="fas fa-search"></i> Buscar
+    </button>
+    <div id="advanced-results" style="margin-top: 15px;"></div>
   </div>
   
   <div class="panel-header">
@@ -377,7 +465,7 @@
         <i class="fas fa-question-circle"></i> Ejemplo
       </button>
       <button onclick="cerrarSesion()" style="background-color: var(--danger-color); margin-left: 10px;">
-        <i class="fas fa-sign-out-alt"></i> Salir
+        <i class="fas fa-sign-out-alt"></i> Salir (<span id="session-timer">30:00</span>)
       </button>
     </div>
   </div>
@@ -407,7 +495,7 @@
   
   <div class="mensaje" id="mensaje"></div>
   
-  <!-- Filtros para Historial (#2) -->
+  <!-- Filtros para Historial -->
   <div class="recent-updates">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h2><i class="fas fa-history"></i> Actualizaciones Recientes</h2>
@@ -426,7 +514,7 @@
   </div>
 </div>
 
-<!-- Botón Modo Oscuro (#7) -->
+<!-- Botón Modo Oscuro -->
 <div class="theme-toggle" onclick="toggleDarkMode()">
   <i class="fas fa-moon" id="theme-icon"></i>
 </div>
@@ -449,39 +537,90 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   
-  // ========== FUNCIONES DE AUTENTICACIÓN ==========
+  // ========== VARIABLES GLOBALES DE SEGURIDAD ==========
+  let inactivityTimer;
+  let failedAttempts = 0;
+  const MAX_FAILED_ATTEMPTS = 3;
+  const LOCKOUT_DURATION = 5 * 60 * 1000; // 5 minutos
+  let isAccountLocked = false;
+  let lockoutEndTime;
+  
+  // ========== FUNCIONES DE AUTENTICACIÓN MEJORADAS ==========
   function validarCredenciales() {
+    if (isAccountLocked) {
+      const remainingTime = Math.ceil((lockoutEndTime - Date.now()) / 60000);
+      document.getElementById('error-message').textContent = `Cuenta bloqueada. Intenta nuevamente en ${remainingTime} minutos.`;
+      return;
+    }
+
     const usuario = document.getElementById('usuario').value;
     const clave = document.getElementById('clave').value;
     const errorMessage = document.getElementById('error-message');
     
-    // Credenciales válidas
+    // Credenciales válidas (en producción usaría hash)
     const USUARIO_VALIDO = "RifasHidalgoMx";
     const CLAVE_VALIDA = "vpil3453";
     
     if(usuario === USUARIO_VALIDO && clave === CLAVE_VALIDA) {
       // Credenciales correctas
+      failedAttempts = 0; // Resetear intentos fallidos
       document.getElementById('login-container').style.display = 'none';
       document.getElementById('admin-container').style.display = 'block';
+      
+      // Iniciar temporizador de inactividad
+      resetInactivityTimer();
       
       // Cargar datos del panel
       cargarEstadisticas();
       cargarActualizacionesRecientes();
-      playSuccessSound(); // (#5) Sonido al ingresar
+      playSuccessSound();
     } else {
       // Credenciales incorrectas
-      errorMessage.textContent = 'Usuario o contraseña incorrectos';
+      failedAttempts++;
+      if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+        isAccountLocked = true;
+        lockoutEndTime = Date.now() + LOCKOUT_DURATION;
+        setTimeout(() => {
+          isAccountLocked = false;
+          failedAttempts = 0;
+        }, LOCKOUT_DURATION);
+        errorMessage.textContent = `Demasiados intentos fallidos. Cuenta bloqueada por 5 minutos.`;
+      } else {
+        errorMessage.textContent = `Usuario o contraseña incorrectos. Intentos restantes: ${MAX_FAILED_ATTEMPTS - failedAttempts}`;
+      }
       document.getElementById('clave').value = '';
     }
   }
   
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      alert('Tu sesión ha expirado por inactividad. Serás redirigido al login.');
+      cerrarSesion();
+    }, 30 * 60 * 1000); // 30 minutos de inactividad
+  }
+  
   function cerrarSesion() {
+    clearTimeout(inactivityTimer);
     document.getElementById('admin-container').style.display = 'none';
     document.getElementById('login-container').style.display = 'flex';
     document.getElementById('usuario').value = '';
     document.getElementById('clave').value = '';
     document.getElementById('error-message').textContent = '';
   }
+  
+  // Mostrar temporizador de sesión
+  function updateSessionTimer() {
+    if (inactivityTimer) {
+      const timeLeft = Math.ceil((inactivityTimer._idleStart + inactivityTimer._idleTimeout - Date.now()) / 1000);
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      document.getElementById('session-timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+  }
+  
+  setInterval(updateSessionTimer, 1000);
   
   // ========== FUNCIONES PRINCIPALES ==========
   function mostrarEjemplo() {
@@ -519,7 +658,7 @@
     
     const batch = db.batch();
     const updates = [];
-    const numerosNoEncontrados = []; // (#6) Validación
+    const numerosNoEncontrados = [];
     
     // Verificar existencia de boletos primero
     Promise.all(numeros.map(num => 
@@ -561,14 +700,14 @@
       }
       cargarEstadisticas();
       agregarActualizaciones(updates);
-      playSuccessSound(); // (#5) Sonido al actualizar
+      playSuccessSound();
     }).catch(error => {
       console.error(error);
       mensaje.innerHTML = '<span class="error">❌ Error al actualizar los boletos. Verifica la consola para más detalles.</span>';
     });
   }
   
-  // ========== FUNCIONES DE BÚSQUEDA (#1) ==========
+  // ========== FUNCIONES DE BÚSQUEDA ==========
   function buscarBoleto() {
     const numero = document.getElementById('search-ticket').value;
     if (!numero) {
@@ -592,7 +731,107 @@
     });
   }
   
-  // ========== FUNCIONES DE HISTORIAL (#2) ==========
+  // ========== BÚSQUEDA AVANZADA ==========
+  function busquedaAvanzada() {
+    const minNumber = parseInt(document.getElementById('min-number').value) || 0;
+    const maxNumber = parseInt(document.getElementById('max-number').value) || Infinity;
+    const status = document.getElementById('search-status').value;
+    const resultsContainer = document.getElementById('advanced-results');
+    
+    resultsContainer.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Buscando boletos...</p>';
+    
+    let query = db.collection("boletos");
+    
+    // Aplicar filtros
+    if (status !== 'todos') {
+        query = query.where("estado", "==", status);
+    }
+    
+    query.get().then((querySnapshot) => {
+        let matchingTickets = [];
+        let totalCount = 0;
+        
+        querySnapshot.forEach((doc) => {
+            const ticketNumber = parseInt(doc.id);
+            if (ticketNumber >= minNumber && ticketNumber <= maxNumber) {
+                matchingTickets.push({
+                    number: doc.id,
+                    ...doc.data()
+                });
+            }
+            totalCount++;
+        });
+        
+        // Ordenar resultados
+        matchingTickets.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+        
+        // Mostrar resultados
+        if (matchingTickets.length === 0) {
+            resultsContainer.innerHTML = '<p class="warning">No se encontraron boletos con los criterios seleccionados.</p>';
+        } else {
+            let html = `
+                <div style="margin-bottom: 10px;">
+                    <strong>Resultados:</strong> ${matchingTickets.length} boletos encontrados (de ${totalCount} totales)
+                </div>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 5px; padding: 10px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <th style="text-align: left; padding: 8px;">Número</th>
+                                <th style="text-align: left; padding: 8px;">Estado</th>
+                                <th style="text-align: left; padding: 8px;">Última Actualización</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            matchingTickets.forEach(ticket => {
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 8px;">${ticket.number}</td>
+                        <td style="padding: 8px;"><span class="status-badge ${ticket.estado}">${ticket.estado}</span></td>
+                        <td style="padding: 8px;">${new Date(ticket.actualizado).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="exportarResultados()" style="background-color: var(--secondary-color);">
+                        <i class="fas fa-file-export"></i> Exportar Resultados
+                    </button>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = html;
+        }
+    }).catch(error => {
+        console.error("Error en búsqueda avanzada:", error);
+        resultsContainer.innerHTML = '<p class="error">Error al realizar la búsqueda. Por favor intenta nuevamente.</p>';
+    });
+  }
+
+  function exportarResultados() {
+    const rows = Array.from(document.querySelectorAll('#advanced-results tbody tr'));
+    let csvContent = "Número,Estado,Última Actualización\n";
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `boletos_filtrados_${new Date().toISOString().slice(0,10)}.csv`);
+    link.click();
+  }
+  
+  // ========== FUNCIONES DE HISTORIAL ==========
   function cargarActualizacionesRecientes() {
     db.collection("boletos")
       .orderBy("actualizado", "desc")
@@ -670,15 +909,15 @@
     });
   }
   
-  // ========== FUNCIONES ADICIONALES (#5, #7) ==========
-  // (#5) Notificaciones con sonido
+  // ========== FUNCIONES ADICIONALES ==========
+  // Notificaciones con sonido
   function playSuccessSound() {
     const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
     audio.volume = 0.3;
     audio.play().catch(e => console.log("El navegador bloqueó el sonido automático"));
   }
   
-  // (#7) Modo oscuro
+  // Modo oscuro
   function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const icon = document.getElementById('theme-icon');
@@ -703,6 +942,11 @@
       validarCredenciales();
     }
   });
+  
+  // Event listeners para detectar actividad
+  document.addEventListener('mousemove', resetInactivityTimer);
+  document.addEventListener('keypress', resetInactivityTimer);
+  document.addEventListener('click', resetInactivityTimer);
 </script>
 </body>
 </html>
