@@ -274,7 +274,7 @@
 
     #popup {
       position: fixed;
-      top: 30%;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       background-color: white;
@@ -285,9 +285,49 @@
       display: none;
       z-index: 1000;
       text-align: center;
+      width: 90%;
+      max-width: 500px;
     }
 
-    #popup a {
+    #popup input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    #popup button {
+      background-color: var(--verde-hidalgo);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    #popup-confirmacion {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border: 2px solid var(--verde-hidalgo);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    #popup-confirmacion a {
       display: inline-block;
       margin-top: 15px;
       padding: 10px 20px;
@@ -334,7 +374,7 @@
   <h1>Sorteos Y Rifas Hidalgo, MX</h1>
   <p>Participa en sorteos y rifas para ganar premios increíbles. ¡Compra tus boletos ahora!</p>
   <p>Rifa #1: $2000 MXN X $1 Bono De $500 Pagando En Las Primeras 2hrs De Apartado</p>
-  <p>En La Compra De 50 Boletos Te Regalamos 10 Numeros Para La Rifa #2</p
+  <p>En La Compra De 50 Boletos Te Regalamos 10 Numeros Para La Rifa #2</p>
   <p>La Rifa #2 Sera Por Un Monto De $5000 MXN Misma Mecanica</p>
   <p>Rifa En Base A La Loteria Nacional Mexicana</p>
 </header>
@@ -357,7 +397,6 @@
   No has seleccionado ningún boleto.
 </div>
 
-<!-- Secciones movidas arriba de los boletos -->
 <button class="btn-apartar" onclick="mostrarPopup()">Apartar Boletos Seleccionados</button>
 
 <div class="maquina-suerte">
@@ -375,6 +414,19 @@
 
 <div id="popup">
   <h3>¡Gracias por apartar tus boletos!</h3>
+  <p>Por favor completa tus datos para continuar:</p>
+  <form id="formulario-datos">
+    <input type="text" id="nombre" placeholder="Nombre completo" required>
+    <input type="text" id="estado" placeholder="Estado" required>
+    <input type="text" id="ciudad" placeholder="Ciudad" required>
+    <input type="tel" id="telefono" placeholder="Teléfono" required>
+    <input type="hidden" id="numeros-boletos">
+    <button type="submit">Confirmar datos</button>
+  </form>
+</div>
+
+<div id="popup-confirmacion">
+  <h3>¡Datos registrados correctamente!</h3>
   <p>Verifica tu compra a través de WhatsApp:</p>
   <a id="whatsapp-link" href="#" target="_blank">Confirmar por WhatsApp</a>
 </div>
@@ -522,39 +574,68 @@
     }
   }
 
-  // Función para mostrar el popup de confirmación
+  // Función para mostrar el popup de datos
   async function mostrarPopup() {
     if (boletosSeleccionados.length === 0) {
       alert("Selecciona al menos un boleto antes de apartar.");
       return;
     }
 
+    const popup = document.getElementById("popup");
+    document.getElementById("numeros-boletos").value = boletosSeleccionados.join(",");
+    popup.style.display = "block";
+  }
+
+  // Manejar el envío del formulario de datos
+  document.getElementById("formulario-datos").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    const nombre = document.getElementById("nombre").value;
+    const estado = document.getElementById("estado").value;
+    const ciudad = document.getElementById("ciudad").value;
+    const telefono = document.getElementById("telefono").value;
+    const numeros = document.getElementById("numeros-boletos").value.split(",").map(Number);
+
     try {
       const batch = db.batch();
       const timestamp = new Date().toISOString();
+      const userId = "user_" + Date.now(); // ID único para este usuario
 
-      boletosSeleccionados.forEach(num => {
+      // Guardar datos del usuario
+      const userRef = db.collection("usuarios").doc(userId);
+      batch.set(userRef, {
+        nombre,
+        estado,
+        ciudad,
+        telefono,
+        fechaRegistro: timestamp,
+        boletos: numeros
+      });
+
+      // Marcar boletos como apartados
+      numeros.forEach(num => {
         const boletoRef = db.collection("boletos").doc(String(num));
         batch.set(boletoRef, {
           estado: "apartado",
           numero: num,
           fechaApartado: timestamp,
-          contacto: "Pendiente WhatsApp"
+          contacto: telefono,
+          usuarioId: userId
         }, { merge: true });
       });
 
       await batch.commit();
-      console.log("Boletos marcados como apartados en Firestore");
+      console.log("Datos guardados en Firestore");
 
-      // Mostrar popup de WhatsApp
-      const popup = document.getElementById("popup");
+      // Mostrar confirmación
+      document.getElementById("popup").style.display = "none";
+      const popupConfirm = document.getElementById("popup-confirmacion");
       const link = document.getElementById("whatsapp-link");
-      const numeros = boletosSeleccionados.map(formatearNumero);
-      const cantidad = boletosSeleccionados.length;
-      const mensaje = `Hola, quiero confirmar la compra para la gran rifa de $2000 MXN de ${cantidad} boletos: ${numeros.join(", ")}`;
+      const numerosFormateados = numeros.map(formatearNumero);
+      const mensaje = `Hola, soy ${nombre} y quiero confirmar la compra para la gran rifa de $2000 MXN de ${numeros.length} boletos: ${numerosFormateados.join(", ")}. Mis datos: Teléfono ${telefono}, ${ciudad}, ${estado}`;
       const url = `https://wa.me/527737345346?text=${encodeURIComponent(mensaje)}`;
       link.href = url;
-      popup.style.display = "block";
+      popupConfirm.style.display = "block";
 
       // Actualizar UI
       await cargarBoletosVendidos();
@@ -562,10 +643,10 @@
       actualizarBarra();
 
     } catch (error) {
-      console.error("Error al apartar boletos:", error);
-      alert("Ocurrió un error al apartar los boletos. Intenta nuevamente.");
+      console.error("Error al guardar datos:", error);
+      alert("Ocurrió un error al guardar tus datos. Intenta nuevamente.");
     }
-  }
+  });
 
   // Función para cambiar de página
   function cambiarPagina(pagina) {
